@@ -15,10 +15,9 @@ import AppSidebar from './components/layout/AppSidebar.vue'
 .app-layout {
   display: flex;
   height: 100vh;
-  background-color: #111118;
-  color: white;
+  background-color: var(--background);
+  color: var(--foreground);
 }
-
 
 .main-content {
   flex: 1;

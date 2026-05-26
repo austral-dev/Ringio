@@ -1,0 +1,39 @@
+<template>
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="80" cy="80" r="72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="427 25" stroke-dashoffset="-47"/>
+      <circle cx="80" cy="80" r="60" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="356 21" stroke-dashoffset="-39"/>
+      <circle cx="80" cy="80" r="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="285 17" stroke-dashoffset="-31"/>
+      <circle cx="80" cy="80" r="36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="213 13" stroke-dashoffset="-23"/>
+      <circle cx="80" cy="80" r="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="140 9"  stroke-dashoffset="-16"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M80 80 L80 66 A14 14 0 0 1 92.1 73 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M80 80 L92.1 73 A14 14 0 0 1 92.1 87 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M80 80 L92.1 87 A14 14 0 0 1 66 80 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M80 80 L66 80 A14 14 0 0 1 80 66 Z"/>
+    </svg>
+    <span class="logo-name">Ringio</span>
+  </div>
+</template>
+
+<style scoped>
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.logo-icon {
+  width: 70px;
+  height: 70px;
+  color: var(--foreground);
+  flex-shrink: 0;
+}
+
+.logo-name {
+  font-size: 35px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+</style>

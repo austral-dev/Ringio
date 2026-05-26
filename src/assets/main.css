@@ -1,4 +1,7 @@
-* {
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+/* ─── Reset ─────────────────────────────────────── */
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -7,3 +10,58 @@
 html, body, #app {
   height: 100%;
 }
+
+/* ─── Design Tokens ─────────────────────────────── */
+:root {
+  /* Fondos */
+  --background:   #09090F;
+  --surface:      #0F0F1B;
+  --sidebar:      #0B0B16;
+  --secondary:    #171726;
+  --muted:        #131320;
+
+  /* Textos */
+  --foreground:         #EAEAF4;
+  --muted-foreground:   #6B6B8A;
+
+  /* Colores principales */
+  --primary:      #3ECF8E;
+  --accent:       #9B7AFF;
+  --destructive:  #FF5B5B;
+
+  /* Bordes */
+  --border:       rgba(255, 255, 255, 0.07);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+
+  /* Gráficos */
+  --chart-1: #3ECF8E;
+  --chart-2: #FF6B5B;
+  --chart-3: #9B7AFF;
+  --chart-4: #60A5FA;
+  --chart-5: #F59E0B;
+
+  /* Bordes redondeados */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Tipografía */
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --font-size-base: 14px;
+}
+
+/* ─── Base ───────────────────────────────────────── */
+body {
+  font-family: var(--font);
+  font-size: var(--font-size-base);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Scrollbar ──────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
