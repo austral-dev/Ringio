@@ -6,8 +6,8 @@
 </template>
 
 <script setup>
-import HeaderNav from './HeaderNav.vue'
-import HeaderStatCards from './HeaderStatCards.vue'
+import HeaderNav from '@/components/layout/header/HeaderNav.vue'
+import HeaderStatCards from '@/components/layout/header/HeaderStatCards.vue'
 </script>
 
 <style scoped>
