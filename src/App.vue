@@ -1,14 +1,18 @@
 <template>
   <div class="app-layout">
     <AppSidebar />
-    <main class="main-content">
-      Contenido
-    </main>
+    <div class="main-header">
+      <AppHeader />
+      <main class="main-content">
+        Contenido
+      </main>
+    </div>
   </div>
 </template>
 
 <script setup>
 import AppSidebar from './components/layout/AppSidebar.vue'
+import AppHeader from './components/layout/AppHeader.vue'
 </script>
 
 <style scoped>
@@ -17,6 +21,13 @@ import AppSidebar from './components/layout/AppSidebar.vue'
   height: 100vh;
   background-color: var(--background);
   color: var(--foreground);
+}
+
+.main-header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .main-content {
