@@ -14,10 +14,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import SidebarPortfolioList from './SidebarPortfolioList.vue'
-import SidebarNav from './SidebarNav.vue'
-import SidebarLogo from './SidebarLogo.vue'
-import SidebarFooter from './SidebarFooter.vue'
+import SidebarPortfolioList from '@/components/layout/sidebar/SidebarPortfolioList.vue'
+import SidebarNav from '@/components/layout/sidebar/SidebarNav.vue'
+import SidebarLogo from '@/components/layout/sidebar/SidebarLogo.vue'
+import SidebarFooter from '@/components/layout/sidebar/SidebarFooter.vue'
 
 const isOpen = ref(false)
 </script>
