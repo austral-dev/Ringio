@@ -6,7 +6,7 @@
     <div class="main-header">
       <AppHeader />
       <main class="main-content">
-        <MyPortfoliosPanel />
+        <AssetsPanel />
       </main>
     </div>
   </div>
@@ -15,7 +15,7 @@
 <script setup>
 import { ref } from 'vue'
 import LoginPanel from '@/components/auth/LoginPanel.vue'
-import MyPortfoliosPanel from '@/components/portfolio/MyPortfoliosPanel.vue'
+import AssetsPanel from '@/components/assets/AssetsPanel.vue'
 import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
 import AppHeader from '@/components/layout/header/AppHeader.vue'
 
