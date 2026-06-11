@@ -4,7 +4,7 @@
     <div class="main-header">
       <AppHeader />
       <main class="main-content">
-        Contenido
+        <AppAssets />
       </main>
     </div>
   </div>
@@ -13,6 +13,7 @@
 <script setup>
 import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
 import AppHeader from '@/components/layout/header/AppHeader.vue'
+import AppAssets from '@/components/layout/assets/AppAssets.vue'
 </script>
 
 <style scoped>
