@@ -100,4 +100,20 @@ const BellIcon = { template: `<svg width="18" height="18" viewBox="0 0 24 24" fi
     background: var(--muted);
 }
 
+@keyframes ring {
+    0%   { transform: rotate(0deg); }
+    15%  { transform: rotate(15deg); }
+    30%  { transform: rotate(-12deg); }
+    45%  { transform: rotate(10deg); }
+    60%  { transform: rotate(-8deg); }
+    75%  { transform: rotate(5deg); }
+    90%  { transform: rotate(-3deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.btn-icon-only:hover :deep(svg) {
+    animation: ring 0.6s ease;
+    transform-origin: top center;
+}
+
 </style>
