@@ -15,6 +15,19 @@ export default defineConfig({
       '@layout': path.resolve(__dirname, './src/components/layout'),
     },
   },
-
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  server: {
+    proxy: {
+      '/api/yahoo': {
+        target: 'https://query1.finance.yahoo.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/yahoo/, '')
+      },
+      '/api/coingecko': {
+        target: 'https://api.coingecko.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/coingecko/, '')
+      }
+    }
+  }
 })
