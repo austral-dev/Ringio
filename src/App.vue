@@ -14,6 +14,7 @@
 import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
 import AppHeader from '@/components/layout/header/AppHeader.vue'
 import AppAssets from '@/components/layout/assets/AppAssets.vue'
+import { supabase } from '@/lib/supabase.js'
 </script>
 
 <style scoped>
