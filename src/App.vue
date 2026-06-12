@@ -6,6 +6,7 @@
     <div class="main-header">
       <AppHeader />
       <main class="main-content">
+        <MyPortfoliosPanel />
         <AssetsPanel />
       </main>
     </div>
@@ -15,6 +16,7 @@
 <script setup>
 import { ref } from 'vue'
 import LoginPanel from '@/components/auth/LoginPanel.vue'
+import MyPortfoliosPanel from '@/components/portfolio/MyPortfoliosPanel.vue'
 import AssetsPanel from '@/components/assets/AssetsPanel.vue'
 import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
 import AppHeader from '@/components/layout/header/AppHeader.vue'
@@ -42,6 +44,9 @@ const isAuthenticated = ref(false)
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 @media (max-width: 768px) {
