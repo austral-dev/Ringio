@@ -8,7 +8,7 @@
       <main class="main-content">
         <MyPortfoliosPanel />
         <AssetsPanel />
-        <AppContent />
+        <AppCharts />
         <AppAssets />
       </main>
     </div>
@@ -24,7 +24,7 @@ import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
 import AppHeader from '@/components/layout/header/AppHeader.vue'
 
 const isAuthenticated = ref(false)
-import AppContent from '@/components/layout/content/AppContent.vue';
+import AppCharts from '@/components/layout/charts/AppCharts.vue';
 import AppAssets from '@/components/layout/assets/AppAssets.vue'
 </script>
 

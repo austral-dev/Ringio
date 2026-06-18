@@ -1,15 +1,15 @@
 <template>
-    <div class="app-content">
-        <ContentLineChart />
+    <div class="app-charts">
+        <LineChart />
     </div>
 </template>
 
 <script setup>
-import ContentLineChart from './ContentLineChart.vue';
+import LineChart from './LineChart.vue';
 </script>
 
 <style scoped>
-.app-content{
+.app-charts{
     display: flex;
     justify-content: space-between;
     align-items: center;
