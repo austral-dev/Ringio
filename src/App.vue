@@ -26,6 +26,7 @@ import AppHeader from '@/components/layout/header/AppHeader.vue'
 const isAuthenticated = ref(false)
 import AppCharts from '@/components/layout/charts/AppCharts.vue';
 import AppAssets from '@/components/layout/assets/AppAssets.vue'
+import { supabase } from '@/lib/supabase.js'
 </script>
 
 <style scoped>
