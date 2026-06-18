@@ -1,13 +1,11 @@
 <template>
     <header class="app-header">
         <HeaderNav />
-        <HeaderStatCards />
     </header>
 </template>
 
 <script setup>
 import HeaderNav from '@/components/layout/header/HeaderNav.vue'
-import HeaderStatCards from '@/components/layout/header/HeaderStatCards.vue'
 </script>
 
 <style scoped>
