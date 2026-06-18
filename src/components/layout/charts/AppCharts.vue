@@ -1,11 +1,13 @@
 <template>
     <div class="app-charts">
         <LineChart />
+        <DoughnutChart />
     </div>
 </template>
 
 <script setup>
 import LineChart from './LineChart.vue';
+import DoughnutChart from './DoughnutChart.vue';
 </script>
 
 <style scoped>
