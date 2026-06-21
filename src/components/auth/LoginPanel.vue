@@ -17,21 +17,6 @@
         <div class="mini-chart" aria-hidden="true">
           <span v-for="bar in bars" :key="bar.height" :style="{ height: `${bar.height}%` }" />
         </div>
-
-        <div class="trust-row">
-          <div>
-            <strong>$127k</strong>
-            <span>Valor total</span>
-          </div>
-          <div>
-            <strong>+28.7%</strong>
-            <span>Histórico</span>
-          </div>
-          <div>
-            <strong>6</strong>
-            <span>Activos</span>
-          </div>
-        </div>
       </div>
     </section>
 
