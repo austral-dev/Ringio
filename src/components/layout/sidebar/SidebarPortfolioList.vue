@@ -6,13 +6,25 @@
       :key="portfolio.id"
       class="portfolio-item"
     >
-      <span class="portfolio-dot" :style="{ backgroundColor: portfolio.color }" />
+      <span
+        class="portfolio-dot"
+        :style="{ backgroundColor: portfolio.color }"
+      />
       <div class="portfolio-info">
         <span class="portfolio-name">{{ portfolio.name }}</span>
-        <span class="portfolio-value">${{ portfolio.value.toLocaleString() }}</span>
+        <span class="portfolio-value"
+          >${{ portfolio.value?.toLocaleString() ?? "—" }}</span
+        >
       </div>
-      <span class="portfolio-change" :class="portfolio.change >= 0 ? 'positive' : 'negative'">
-        {{ portfolio.change >= 0 ? '+' : '' }}{{ portfolio.change }}%
+      <span
+        class="portfolio-change"
+        :class="portfolio.change >= 0 ? 'positive' : 'negative'"
+      >
+        {{
+          portfolio.change != null
+            ? (portfolio.change >= 0 ? "+" : "") + portfolio.change + "%"
+            : "—"
+        }}
       </span>
     </div>
     <button class="new-portfolio-btn">+ Nuevo portafolio</button>
@@ -20,11 +32,10 @@
 </template>
 
 <script setup>
-const portfolios = [
-  { id: 1, name: 'Tech & Growth', value: 127431, change: 2.28, color: '#3ECF8E' },
-  { id: 2, name: 'Mercado Cripto', value: 68988, change: 4.02, color: '#9B7AFF' },
-  { id: 3, name: 'Dividendos', value: 23455, change: -0.41, color: '#FF5B5B' },
-]
+import { usePortfolioStore } from "@/stores/portfolioStore";
+
+const store = usePortfolioStore();
+const portfolios = store.portfolios;
 </script>
 
 <style scoped>
@@ -54,7 +65,9 @@ const portfolios = [
   transition: background 0.15s;
 }
 
-.portfolio-item:hover { background: var(--secondary); }
+.portfolio-item:hover {
+  background: var(--secondary);
+}
 
 .portfolio-dot {
   width: 8px;
@@ -83,8 +96,16 @@ const portfolios = [
   color: var(--muted-foreground);
 }
 
-.positive { color: var(--primary); font-size: 12px; font-weight: 500; }
-.negative { color: var(--destructive); font-size: 12px; font-weight: 500; }
+.positive {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 500;
+}
+.negative {
+  color: var(--destructive);
+  font-size: 12px;
+  font-weight: 500;
+}
 
 .new-portfolio-btn {
   display: flex;
