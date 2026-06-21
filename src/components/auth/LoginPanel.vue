@@ -36,7 +36,7 @@
     </section>
 
     <section class="form-side" aria-labelledby="login-title">
-      <form class="login-card" @submit.prevent="emit('login')">
+      <form class="login-card" @submit.prevent="handleLogin">
         <div class="mobile-brand">
           <div class="brand-mark small"><span>R</span></div>
           <span>Ringio</span>
@@ -88,6 +88,7 @@
 <script setup>
 import { ref } from 'vue'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-vue-next'
+import { loginAI } from '@/lib/aiAuth.js'
 
 const emit = defineEmits(['login'])
 
@@ -96,6 +97,16 @@ const password = ref('ringio-demo')
 const remember = ref(true)
 const showPassword = ref(false)
 const bars = [42, 56, 44, 72, 63, 86, 76, 94]
+
+const handleLogin = async () => {
+  try {
+    const token = await loginAI(email.value, password.value)
+    console.log('Token recibido!')
+  } catch (err) {
+    console.error('No se pudo conectar con la API de IA:', err)
+  }
+  emit('login')
+}
 </script>
 
 <style scoped>

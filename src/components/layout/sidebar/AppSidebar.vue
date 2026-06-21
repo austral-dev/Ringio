@@ -50,7 +50,7 @@ const startResize = (e) => {
 
 <style scoped>
 .sidebar {
-  min-width: 220px;
+  min-width: 280px;
   max-width: 500px;
   background-color: var(--sidebar);
   border-right: 1px solid var(--sidebar-border);
