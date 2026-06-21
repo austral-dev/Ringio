@@ -8,11 +8,6 @@
           Visualizá el valor total, rendimiento diario y distribución de cada estrategia de inversión.
         </p>
       </div>
-
-      <button class="primary-action" type="button">
-        <Plus :size="17" />
-        Nuevo portafolio
-      </button>
     </div>
 
     <div class="portfolio-summary">

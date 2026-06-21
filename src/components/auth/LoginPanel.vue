@@ -74,6 +74,7 @@
 import { ref } from 'vue'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-vue-next'
 import { loginAI } from '@/lib/aiAuth.js'
+import { loginWithCredentials } from '@/composables/useAuth.js'
 
 const emit = defineEmits(['login'])
 
@@ -85,10 +86,10 @@ const bars = [42, 56, 44, 72, 63, 86, 76, 94]
 
 const handleLogin = async () => {
   try {
-    const token = await loginAI(email.value, password.value)
-    console.log('Token recibido!')
+    await loginAI(email.value, password.value)
+    await loginWithCredentials(email.value, password.value)
   } catch (err) {
-    console.error('No se pudo conectar con la API de IA:', err)
+    console.error('Error en el login:', err)
   }
   emit('login')
 }
