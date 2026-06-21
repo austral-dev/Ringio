@@ -6,7 +6,8 @@
     <aside class="sidebar" :class="{ open: isOpen }" :style="{ width: `${width}px` }">
       <SidebarLogo />
       <SidebarPortfolioList />
-      <SidebarNav />
+      <!-- <SidebarNav /> -->
+      <SidebarChat />
       <SidebarFooter />
 
       <div class="resize-handle" @mousedown="startResize"/>
@@ -18,7 +19,8 @@
 <script setup>
 import { ref } from 'vue'
 import SidebarPortfolioList from '@/components/layout/sidebar/SidebarPortfolioList.vue'
-import SidebarNav from '@/components/layout/sidebar/SidebarNav.vue'
+//import SidebarNav from '@/components/layout/sidebar/SidebarNav.vue'
+import SidebarChat from '@/components/layout/sidebar/SidebarChat.vue'
 import SidebarLogo from '@/components/layout/sidebar/SidebarLogo.vue'
 import SidebarFooter from '@/components/layout/sidebar/SidebarFooter.vue'
 
@@ -50,7 +52,7 @@ const startResize = (e) => {
 
 <style scoped>
 .sidebar {
-  min-width: 220px;
+  min-width: 280px;
   max-width: 500px;
   background-color: var(--sidebar);
   border-right: 1px solid var(--sidebar-border);
@@ -60,6 +62,7 @@ const startResize = (e) => {
   flex-direction: column;
   position: sticky;
   top: 0;
+  overflow: hidden;
 }
 
 .resize-handle{
