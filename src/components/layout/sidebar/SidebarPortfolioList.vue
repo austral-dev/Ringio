@@ -1,6 +1,8 @@
 <template>
   <section class="portfolio-section" aria-labelledby="sidebar-portfolios-title">
-    <span id="sidebar-portfolios-title" class="section-label">Mis portafolios</span>
+    <span id="sidebar-portfolios-title" class="section-label"
+      >Mis portafolios</span
+    >
 
     <div class="portfolio-list">
       <article
@@ -29,7 +31,11 @@
       </article>
     </div>
 
-    <form v-if="isAdding" class="new-portfolio-form" @submit.prevent="addPortfolio">
+    <form
+      v-if="isAdding"
+      class="new-portfolio-form"
+      @submit.prevent="addPortfolio"
+    >
       <label class="sr-only" for="portfolio-name">Nombre del portafolio</label>
       <input
         id="portfolio-name"
@@ -51,7 +57,12 @@
       </div>
     </form>
 
-    <button v-else class="new-portfolio-btn" type="button" @click="startAddPortfolio">
+    <button
+      v-else
+      class="new-portfolio-btn"
+      type="button"
+      @click="startAddPortfolio"
+    >
       <Plus :size="15" />
       Nuevo portafolio
     </button>
@@ -64,7 +75,7 @@ import { Check, Plus, X } from 'lucide-vue-next'
 import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
 import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
 
-const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
+const store = usePortfolioStore();
 
 const isAdding = ref(false)
 const newPortfolioName = ref('')
@@ -77,7 +88,7 @@ onMounted(async () => {
 })
 
 function startAddPortfolio() {
-  isAdding.value = true
+  isAdding.value = true;
 }
 
 function cancelAddPortfolio() {
@@ -86,7 +97,7 @@ function cancelAddPortfolio() {
 }
 
 function addPortfolio() {
-  if (!canAddPortfolio.value) return
+  if (!canAddPortfolio.value) return;
 
   const newPortfolio = {
     id: Date.now(),
@@ -99,10 +110,11 @@ function addPortfolio() {
 }
 
 function removePortfolio(id) {
-  portfolios.value = portfolios.value.filter((portfolio) => portfolio.id !== id)
+  const index = store.portfolios.findIndex((p) => p.id === id);
+  if (index !== -1) store.portfolios.splice(index, 1);
 
-  if (selectedPortfolioId.value === id) {
-    selectedPortfolioId.value = portfolios.value[0]?.id ?? null
+  if (store.activePortfolioId === id) {
+    store.setActivePortfolio(store.portfolios[0]?.id ?? null);
   }
 }
 
@@ -188,7 +200,9 @@ function removePortfolio(id) {
 
 .portfolio-value {
   color: #8b84c6;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -197,7 +211,9 @@ function removePortfolio(id) {
 
 .portfolio-change {
   align-self: center;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
@@ -227,7 +243,11 @@ function removePortfolio(id) {
   cursor: pointer;
   opacity: 0;
   transform: translateY(-2px);
-  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .portfolio-item:hover .remove-portfolio-btn,
@@ -257,7 +277,9 @@ function removePortfolio(id) {
   margin-top: 6px;
   padding: 10px 11px;
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .new-portfolio-btn:hover {
