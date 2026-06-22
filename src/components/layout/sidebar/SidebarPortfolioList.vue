@@ -62,10 +62,10 @@
 import { computed, ref, onMounted } from 'vue'
 import { Check, Plus, X } from 'lucide-vue-next'
 import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
+import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
 
 const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
 
-const selectedPortfolioId = ref(null)
 const isAdding = ref(false)
 const newPortfolioName = ref('')
 
@@ -75,10 +75,6 @@ onMounted(async () => {
   await fetchPortfolios()
   selectedPortfolioId.value = portfolios.value[0]?.id ?? null
 })
-
-function selectPortfolio(id) {
-  selectedPortfolioId.value = id
-}
 
 function startAddPortfolio() {
   isAdding.value = true
