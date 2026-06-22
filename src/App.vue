@@ -3,16 +3,16 @@
     <AppSidebar />
     <div class="main-header">
       <AppHeader />
-      <main class="main-content">
-        Contenido
-      </main>
+      <main class="main-content">Contenido</main>
     </div>
   </div>
+  <AssetSearchModal />
 </template>
 
 <script setup>
-import AppSidebar from '@/components/layout/sidebar/AppSidebar.vue'
-import AppHeader from '@/components/layout/header/AppHeader.vue'
+import AppSidebar from "@/components/layout/sidebar/AppSidebar.vue";
+import AppHeader from "@/components/layout/header/AppHeader.vue";
+import AssetSearchModal from "@/components/transaction/AssetSearchModal.vue";
 </script>
 
 <style scoped>
