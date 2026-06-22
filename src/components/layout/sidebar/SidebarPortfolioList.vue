@@ -1,8 +1,6 @@
 <template>
   <section class="portfolio-section" aria-labelledby="sidebar-portfolios-title">
-    <span id="sidebar-portfolios-title" class="section-label"
-      >Mis portafolios</span
-    >
+    <span id="sidebar-portfolios-title" class="section-label">Mis portafolios</span>
 
     <div class="portfolio-list">
       <article
@@ -24,7 +22,7 @@
           class="remove-portfolio-btn"
           type="button"
           :aria-label="`Quitar portafolio ${portfolio.nombre}`"
-          @click="removePortfolio(portfolio.id)"
+          @click="pedirConfirmacion(portfolio.id)"
         >
           <X :size="13" />
         </button>
@@ -67,6 +65,31 @@
       Nuevo portafolio
     </button>
   </section>
+
+  <Teleport to="body">
+    <div v-if="mostrarConfirmacion" class="confirm-overlay">
+      <div class="confirm-dialog">
+        <h3 class="confirm-title">Borrar portfolio</h3>
+        <p class="confirm-text">
+          Esta acción borrará <strong>{{ portfolioABorrarNombre }}</strong> y todas sus transacciones. No se puede deshacer.
+        </p>
+        <label class="confirm-label">
+          Escribí <span class="confirm-nombre">{{portfolioABorrarNombre}}</span> para confirmar
+          <input
+            v-model="confirmNombre"
+            class="confirm-input"
+            type="text"
+            :placeholder="portfolioABorrarNombre"
+            autofocus
+          />
+        </label>
+        <div class="form-actions">
+          <button class="cancel-btn" @click="cancelarBorrado">Cancelar</button>
+          <button class="delete-btn" :disabled="!confirmacionValida" @click="confirmarBorrado">Borrar</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -74,13 +97,25 @@ import { computed, ref, onMounted } from 'vue'
 import { Check, Plus, X } from 'lucide-vue-next'
 import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
 import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
+import { supabase } from '@/lib/supabase.js'
+
+const portfolioABorrar = ref(null)
+const mostrarConfirmacion = ref(false)
 
 const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
 
 const isAdding = ref(false)
 const newPortfolioName = ref('')
-
+const confirmNombre = ref('')
 const canAddPortfolio = computed(() => newPortfolioName.value.length > 0)
+
+const portfolioABorrarNombre = computed(() =>
+  portfolios.value.find(p => p.id === portfolioABorrar.value)?.nombre ?? ''
+)
+
+const confirmacionValida = computed(() =>
+  confirmNombre.value === portfolioABorrarNombre.value
+)
 
 onMounted(async () => {
   await fetchPortfolios()
@@ -107,11 +142,28 @@ function addPortfolio() {
   cancelAddPortfolio()
 }
 
-function removePortfolio(id) {
+function pedirConfirmacion(id) {
+  portfolioABorrar.value = id
+  mostrarConfirmacion.value = true
+  confirmNombre.value = ''
+}
+
+function cancelarBorrado() {
+  portfolioABorrar.value = null
+  mostrarConfirmacion.value = false
+  confirmNombre.value = ''
+}
+
+async function confirmarBorrado() {
+  const id = portfolioABorrar.value
+  await supabase.from('Transaccion').delete().eq('portfolio_id', id)
+  await supabase.from('Portfolio').delete().eq('id', id)
   portfolios.value = portfolios.value.filter((p) => p.id !== id)
+
   if (selectedPortfolioId.value === id) {
     selectedPortfolioId.value = portfolios.value[0]?.id ?? null
   }
+  cancelarBorrado()
 }
 </script>
 
@@ -195,9 +247,7 @@ function removePortfolio(id) {
 
 .portfolio-value {
   color: #8b84c6;
-  font-family:
-    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    monospace;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -206,22 +256,15 @@ function removePortfolio(id) {
 
 .portfolio-change {
   align-self: center;
-  font-family:
-    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    monospace;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
   padding-right: 1px;
 }
 
-.portfolio-change.positive {
-  color: #3ef59a;
-}
-
-.portfolio-change.negative {
-  color: #ff5b6b;
-}
+.portfolio-change.positive { color: #3ef59a; }
+.portfolio-change.negative { color: #ff5b6b; }
 
 .remove-portfolio-btn {
   position: absolute;
@@ -238,11 +281,7 @@ function removePortfolio(id) {
   cursor: pointer;
   opacity: 0;
   transform: translateY(-2px);
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 
 .portfolio-item:hover .remove-portfolio-btn,
@@ -272,9 +311,7 @@ function removePortfolio(id) {
   margin-top: 6px;
   padding: 10px 11px;
   text-align: left;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .new-portfolio-btn:hover {
@@ -331,6 +368,10 @@ function removePortfolio(id) {
   font-weight: 700;
 }
 
+.cancel-btn:hover {
+  background: rgba(15, 255, 87, 0.193);
+}
+
 .confirm-btn {
   background: var(--primary);
   color: var(--primary-foreground);
@@ -356,5 +397,100 @@ function removePortfolio(id) {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+:global(.confirm-overlay) {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+}
+
+:global(.confirm-dialog) {
+  background: #13121f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 28px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+:global(.confirm-title) {
+  font-size: 17px;
+  font-weight: 800;
+  color: #f4f1ff;
+  margin: 0;
+}
+
+:global(.confirm-text) {
+  font-size: 13px;
+  color: #8b84c6;
+  line-height: 1.6;
+  margin: 0;
+}
+
+:global(.confirm-label) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: #8b84c6;
+  line-height: 1.5;
+}
+
+:global(.confirm-nombre) {
+  color: #f4f1ff;
+  font-weight: 700;
+}
+
+:global(.confirm-input) {
+  width: 100%;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground);
+  font-family: var(--font);
+  font-size: 13px;
+  outline: none;
+  padding: 0 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+:global(.confirm-input:focus) {
+  border-color: rgba(255, 91, 91, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 91, 91, 0.08);
+}
+
+:global(.delete-btn) {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 91, 107, 0.15);
+  color: #ff5b6b;
+  border: 1px solid rgba(255, 91, 107, 0.25);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+:global(.delete-btn:not(:disabled):hover) {
+  background: rgba(255, 91, 107, 0.25);
+  box-shadow: 0 0 12px rgba(255, 91, 107, 0.2);
+}
+
+:global(.delete-btn:disabled) {
+  cursor: not-allowed;
+  opacity: 0.35;
 }
 </style>
