@@ -3,11 +3,15 @@
     <button class="hamburger" @click="isOpen = !isOpen">☰</button>
     <div v-if="isOpen" class="overlay" @click="isOpen = false" />
 
-    <aside class="sidebar" :class="{ open: isOpen }">
+    <aside class="sidebar" :class="{ open: isOpen }" :style="{ width: `${width}px` }">
       <SidebarLogo />
       <SidebarPortfolioList />
-      <SidebarNav />
+      <!-- <SidebarNav /> -->
+      <SidebarChat />
       <SidebarFooter />
+
+      <div class="resize-handle" @mousedown="startResize"/>
+
     </aside>
   </div>
 </template>
@@ -15,23 +19,60 @@
 <script setup>
 import { ref } from 'vue'
 import SidebarPortfolioList from '@/components/layout/sidebar/SidebarPortfolioList.vue'
-import SidebarNav from '@/components/layout/sidebar/SidebarNav.vue'
+//import SidebarNav from '@/components/layout/sidebar/SidebarNav.vue'
+import SidebarChat from '@/components/layout/sidebar/SidebarChat.vue'
 import SidebarLogo from '@/components/layout/sidebar/SidebarLogo.vue'
 import SidebarFooter from '@/components/layout/sidebar/SidebarFooter.vue'
 
 const isOpen = ref(false)
+const width = ref(220)
+
+const startResize = (e) => {
+  const startX = e.clientX;
+  const startWidth = width.value;
+
+  const resize = (e) => {
+    document.body.style.userSelect = "none";
+    width.value = Math.max(
+      220,
+      Math.min(500, startWidth + e.clientX - startX)
+    );
+  }
+
+  const stopResize = () => {
+    document.body.style.userSelect = "";
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stopResize);
+  }
+
+  document.addEventListener("mouseup", stopResize);
+  document.addEventListener("mousemove", resize);
+}
 </script>
 
 <style scoped>
 .sidebar {
-  width: 220px;
-  min-width: 220px;
+  min-width: 280px;
+  max-width: 500px;
   background-color: var(--sidebar);
   border-right: 1px solid var(--sidebar-border);
   padding: 20px;
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.resize-handle{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 10;
 }
 
 .logo {
@@ -99,5 +140,6 @@ const isOpen = ref(false)
   .sidebar.open {
     left: 0;
   }
+
 }
 </style>
