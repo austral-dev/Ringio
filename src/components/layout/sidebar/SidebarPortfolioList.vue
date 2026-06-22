@@ -1,6 +1,8 @@
 <template>
   <section class="portfolio-section" aria-labelledby="sidebar-portfolios-title">
-    <span id="sidebar-portfolios-title" class="section-label">Mis portafolios</span>
+    <span id="sidebar-portfolios-title" class="section-label"
+      >Mis portafolios</span
+    >
 
     <div class="portfolio-list">
       <article
@@ -9,14 +11,27 @@
         class="portfolio-item"
         :class="{ active: selectedPortfolioId === portfolio.id }"
       >
-        <button class="portfolio-select" type="button" @click="selectPortfolio(portfolio.id)">
-          <span class="portfolio-dot" :style="{ backgroundColor: portfolio.color }" />
+        <button
+          class="portfolio-select"
+          type="button"
+          @click="selectPortfolio(portfolio.id)"
+        >
+          <span
+            class="portfolio-dot"
+            :style="{ backgroundColor: portfolio.color }"
+          />
           <span class="portfolio-info">
             <span class="portfolio-name">{{ portfolio.name }}</span>
-            <span class="portfolio-value">{{ formatCurrency(portfolio.value) }}</span>
+            <span class="portfolio-value">{{
+              formatCurrency(portfolio.value)
+            }}</span>
           </span>
-          <span class="portfolio-change" :class="portfolio.change >= 0 ? 'positive' : 'negative'">
-            {{ portfolio.change >= 0 ? '+' : '' }}{{ portfolio.change.toFixed(2) }}%
+          <span
+            class="portfolio-change"
+            :class="portfolio.change >= 0 ? 'positive' : 'negative'"
+          >
+            {{ portfolio.change >= 0 ? "+" : ""
+            }}{{ portfolio.change.toFixed(2) }}%
           </span>
         </button>
 
@@ -31,7 +46,11 @@
       </article>
     </div>
 
-    <form v-if="isAdding" class="new-portfolio-form" @submit.prevent="addPortfolio">
+    <form
+      v-if="isAdding"
+      class="new-portfolio-form"
+      @submit.prevent="addPortfolio"
+    >
       <label class="sr-only" for="portfolio-name">Nombre del portafolio</label>
       <input
         id="portfolio-name"
@@ -63,7 +82,12 @@
       </div>
     </form>
 
-    <button v-else class="new-portfolio-btn" type="button" @click="startAddPortfolio">
+    <button
+      v-else
+      class="new-portfolio-btn"
+      type="button"
+      @click="startAddPortfolio"
+    >
       <Plus :size="15" />
       Nuevo portafolio
     </button>
@@ -71,69 +95,71 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { Check, Plus, X } from 'lucide-vue-next'
+import { computed, ref } from "vue";
+import { Check, Plus, X } from "lucide-vue-next";
+import { usePortfolioStore } from "@/stores/portfolioStore";
 
-const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
+const store = usePortfolioStore();
 
-const portfolios = ref([
-  { id: 1, name: 'Tech & Growth', value: 127431, change: 2.28, color: '#3ECF8E' },
-  { id: 2, name: 'Mercado Cripto', value: 68908, change: 4.02, color: '#9B7AFF' },
-  { id: 3, name: 'Dividendos', value: 23455, change: -0.41, color: '#FF6B5B' },
-])
+const portfolioColors = ["#3ECF8E", "#9B7AFF", "#FF6B5B", "#60A5FA", "#F59E0B"];
 
-const selectedPortfolioId = ref(portfolios.value[0]?.id ?? null)
-const isAdding = ref(false)
-const newPortfolioName = ref('')
-const newPortfolioValue = ref(null)
+const portfolios = computed(() => store.portfolios);
+const selectedPortfolioId = computed(() => store.activePortfolioId);
 
-const canAddPortfolio = computed(() => newPortfolioName.value.length > 0 && Number(newPortfolioValue.value) >= 0)
+const isAdding = ref(false);
+const newPortfolioName = ref("");
+const newPortfolioValue = ref(null);
+
+const canAddPortfolio = computed(
+  () =>
+    newPortfolioName.value.length > 0 && Number(newPortfolioValue.value) >= 0,
+);
 
 function selectPortfolio(id) {
-  selectedPortfolioId.value = id
+  store.setActivePortfolio(id);
 }
 
 function startAddPortfolio() {
-  isAdding.value = true
+  isAdding.value = true;
 }
 
 function cancelAddPortfolio() {
-  isAdding.value = false
-  newPortfolioName.value = ''
-  newPortfolioValue.value = null
+  isAdding.value = false;
+  newPortfolioName.value = "";
+  newPortfolioValue.value = null;
 }
 
 function addPortfolio() {
-  if (!canAddPortfolio.value) return
+  if (!canAddPortfolio.value) return;
 
-  const nextIndex = portfolios.value.length
-  const newPortfolio = {
+  const nextIndex = store.portfolios.length;
+  store.portfolios.push({
     id: Date.now(),
     name: newPortfolioName.value,
     value: Number(newPortfolioValue.value),
     change: 0,
     color: portfolioColors[nextIndex % portfolioColors.length],
-  }
-
-  portfolios.value.push(newPortfolio)
-  selectedPortfolioId.value = newPortfolio.id
-  cancelAddPortfolio()
+    holdings: [],
+  });
+  store.setActivePortfolio(store.portfolios.at(-1).id);
+  cancelAddPortfolio();
 }
 
 function removePortfolio(id) {
-  portfolios.value = portfolios.value.filter((portfolio) => portfolio.id !== id)
+  const index = store.portfolios.findIndex((p) => p.id === id);
+  if (index !== -1) store.portfolios.splice(index, 1);
 
-  if (selectedPortfolioId.value === id) {
-    selectedPortfolioId.value = portfolios.value[0]?.id ?? null
+  if (store.activePortfolioId === id) {
+    store.setActivePortfolio(store.portfolios[0]?.id ?? null);
   }
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(value);
 }
 </script>
 
@@ -217,7 +243,9 @@ function formatCurrency(value) {
 
 .portfolio-value {
   color: #8b84c6;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -226,7 +254,9 @@ function formatCurrency(value) {
 
 .portfolio-change {
   align-self: center;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
@@ -256,7 +286,11 @@ function formatCurrency(value) {
   cursor: pointer;
   opacity: 0;
   transform: translateY(-2px);
-  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .portfolio-item:hover .remove-portfolio-btn,
@@ -286,7 +320,9 @@ function formatCurrency(value) {
   margin-top: 6px;
   padding: 10px 11px;
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .new-portfolio-btn:hover {
