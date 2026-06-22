@@ -34,6 +34,7 @@
 <script setup>
 import { ref, nextTick } from 'vue'
 import { sendMessage } from '@/lib/aiAuth.js'
+import { SendHorizontal } from 'lucide-vue-next'
 
 const input = ref('')
 const messages = ref([

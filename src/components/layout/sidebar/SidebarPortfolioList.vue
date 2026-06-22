@@ -6,39 +6,24 @@
 
     <div class="portfolio-list">
       <article
-        v-for="portfolio in portfolios"
+        v-for="(portfolio, index) in portfolios"
         :key="portfolio.id"
         class="portfolio-item"
         :class="{ active: selectedPortfolioId === portfolio.id }"
       >
-        <button
-          class="portfolio-select"
-          type="button"
-          @click="selectPortfolio(portfolio.id)"
-        >
-          <span
-            class="portfolio-dot"
-            :style="{ backgroundColor: portfolio.color }"
-          />
+        <button class="portfolio-select" type="button" @click="selectPortfolio(portfolio.id)">
+          <span class="portfolio-dot" :style="{ backgroundColor: portfolioColors[index % portfolioColors.length] }" />
           <span class="portfolio-info">
-            <span class="portfolio-name">{{ portfolio.name }}</span>
-            <span class="portfolio-value">{{
-              formatCurrency(portfolio.value)
-            }}</span>
+            <span class="portfolio-name">{{ portfolio.nombre }}</span>
+            <span class="portfolio-value">—</span>
           </span>
-          <span
-            class="portfolio-change"
-            :class="portfolio.change >= 0 ? 'positive' : 'negative'"
-          >
-            {{ portfolio.change >= 0 ? "+" : ""
-            }}{{ portfolio.change.toFixed(2) }}%
-          </span>
+          <span class="portfolio-change">—</span>
         </button>
 
         <button
           class="remove-portfolio-btn"
           type="button"
-          :aria-label="`Quitar portafolio ${portfolio.name}`"
+          :aria-label="`Quitar portafolio ${portfolio.nombre}`"
           @click="removePortfolio(portfolio.id)"
         >
           <X :size="13" />
@@ -59,16 +44,6 @@
         placeholder="Nombre"
         maxlength="32"
         autofocus
-      />
-
-      <label class="sr-only" for="portfolio-value">Valor del portafolio</label>
-      <input
-        id="portfolio-value"
-        v-model.number="newPortfolioValue"
-        type="number"
-        min="0"
-        step="1"
-        placeholder="Valor"
       />
 
       <div class="form-actions">
@@ -95,54 +70,43 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
-import { Check, Plus, X } from "lucide-vue-next";
-import { usePortfolioStore } from "@/stores/portfolioStore";
+import { computed, ref, onMounted } from 'vue'
+import { Check, Plus, X } from 'lucide-vue-next'
+import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
+import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
 
 const store = usePortfolioStore();
 
-const portfolioColors = ["#3ECF8E", "#9B7AFF", "#FF6B5B", "#60A5FA", "#F59E0B"];
+const isAdding = ref(false)
+const newPortfolioName = ref('')
 
-const portfolios = computed(() => store.portfolios);
-const selectedPortfolioId = computed(() => store.activePortfolioId);
+const canAddPortfolio = computed(() => newPortfolioName.value.length > 0)
 
-const isAdding = ref(false);
-const newPortfolioName = ref("");
-const newPortfolioValue = ref(null);
-
-const canAddPortfolio = computed(
-  () =>
-    newPortfolioName.value.length > 0 && Number(newPortfolioValue.value) >= 0,
-);
-
-function selectPortfolio(id) {
-  store.setActivePortfolio(id);
-}
+onMounted(async () => {
+  await fetchPortfolios()
+  selectedPortfolioId.value = portfolios.value[0]?.id ?? null
+})
 
 function startAddPortfolio() {
   isAdding.value = true;
 }
 
 function cancelAddPortfolio() {
-  isAdding.value = false;
-  newPortfolioName.value = "";
-  newPortfolioValue.value = null;
+  isAdding.value = false
+  newPortfolioName.value = ''
 }
 
 function addPortfolio() {
   if (!canAddPortfolio.value) return;
 
-  const nextIndex = store.portfolios.length;
-  store.portfolios.push({
+  const newPortfolio = {
     id: Date.now(),
-    name: newPortfolioName.value,
-    value: Number(newPortfolioValue.value),
-    change: 0,
-    color: portfolioColors[nextIndex % portfolioColors.length],
-    holdings: [],
-  });
-  store.setActivePortfolio(store.portfolios.at(-1).id);
-  cancelAddPortfolio();
+    nombre: newPortfolioName.value,
+  }
+
+  portfolios.value.push(newPortfolio)
+  selectedPortfolioId.value = newPortfolio.id
+  cancelAddPortfolio()
 }
 
 function removePortfolio(id) {
@@ -154,13 +118,6 @@ function removePortfolio(id) {
   }
 }
 
-function formatCurrency(value) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 </script>
 
 <style scoped>

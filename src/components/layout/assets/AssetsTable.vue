@@ -43,7 +43,7 @@
                         {{ activo.gananciaPerdida >= 0 ? '+' : '' }}${{ formatNum(activo.gananciaPerdida) }}
                     </td>
                     <td :class="activo.porcentaje >= 0 ? 'positive' : 'negative'">
-                        {{ activo.porcentaje >= 0 ? '+' : '' }}{{ activo.porcentaje }}%
+                        {{ activo.porcentaje >= 0 ? '+' : '' }}{{ activo.porcentaje.toFixed(2) }}%
                     </td>
                 </tr>
             </tbody>
