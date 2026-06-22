@@ -75,7 +75,7 @@ import { Check, Plus, X } from 'lucide-vue-next'
 import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
 import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
 
-const store = usePortfolioStore();
+const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
 
 const isAdding = ref(false)
 const newPortfolioName = ref('')
@@ -88,7 +88,7 @@ onMounted(async () => {
 })
 
 function startAddPortfolio() {
-  isAdding.value = true;
+  isAdding.value = true
 }
 
 function cancelAddPortfolio() {
@@ -97,27 +97,22 @@ function cancelAddPortfolio() {
 }
 
 function addPortfolio() {
-  if (!canAddPortfolio.value) return;
-
+  if (!canAddPortfolio.value) return
   const newPortfolio = {
     id: Date.now(),
     nombre: newPortfolioName.value,
   }
-
   portfolios.value.push(newPortfolio)
   selectedPortfolioId.value = newPortfolio.id
   cancelAddPortfolio()
 }
 
 function removePortfolio(id) {
-  const index = store.portfolios.findIndex((p) => p.id === id);
-  if (index !== -1) store.portfolios.splice(index, 1);
-
-  if (store.activePortfolioId === id) {
-    store.setActivePortfolio(store.portfolios[0]?.id ?? null);
+  portfolios.value = portfolios.value.filter((p) => p.id !== id)
+  if (selectedPortfolioId.value === id) {
+    selectedPortfolioId.value = portfolios.value[0]?.id ?? null
   }
 }
-
 </script>
 
 <style scoped>
