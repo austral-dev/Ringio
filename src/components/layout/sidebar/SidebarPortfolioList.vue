@@ -43,6 +43,15 @@
         maxlength="32"
         autofocus
       />
+      <label class="sr-only" for="portfolio-description">Descripción del portafolio</label>
+      <input
+        id="portfolio-description"
+        v-model.trim="newPortfolioDescription"
+        type="textarea"
+        placeholder="Descripción"
+        maxlength="500"
+        autofocus
+      />
 
       <div class="form-actions">
         <button class="confirm-btn" type="submit" :disabled="!canAddPortfolio">
@@ -98,6 +107,7 @@ import { Check, Plus, X } from 'lucide-vue-next'
 import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
 import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
 import { supabase } from '@/lib/supabase.js'
+import { currentUser } from '@/composables/useAuth'
 
 const portfolioABorrar = ref(null)
 const mostrarConfirmacion = ref(false)
@@ -106,6 +116,7 @@ const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
 
 const isAdding = ref(false)
 const newPortfolioName = ref('')
+const newPortfolioDescription = ref('')
 const confirmNombre = ref('')
 const canAddPortfolio = computed(() => newPortfolioName.value.length > 0)
 
@@ -129,16 +140,28 @@ function startAddPortfolio() {
 function cancelAddPortfolio() {
   isAdding.value = false
   newPortfolioName.value = ''
+  newPortfolioDescription.value = ''
 }
 
-function addPortfolio() {
+async function addPortfolio() {
   if (!canAddPortfolio.value) return
   const newPortfolio = {
-    id: Date.now(),
+    user_id: currentUser.value.id,
     nombre: newPortfolioName.value,
+    descripcion: newPortfolioDescription.value,
   }
-  portfolios.value.push(newPortfolio)
-  selectedPortfolioId.value = newPortfolio.id
+  const { data, error } = await supabase
+    .from('Portfolio')
+    .insert(newPortfolio)
+    .select()
+    .single()
+
+  if (error) {
+    console.error(error)
+    return
+  }
+  portfolios.value.push(data)
+  selectedPortfolioId.value = data.id
   cancelAddPortfolio()
 }
 
