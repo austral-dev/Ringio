@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { searchAsset, fetchStockPrice, fetchCryptoPrice } from '@/services/priceService'
+import { supabase } from '@/lib/supabase.js'
+import { currentUser } from '@/composables/useAuth.js'
 
 export const usePortfolioStore = defineStore('portfolio', () => {
 
   // ─── Estado: Portfolios ───────────────────────────
-  const portfolios = ref([
-    { id: 1, name: 'Tech & Growth',  color: '#3ECF8E', holdings: [] },
-    { id: 2, name: 'Mercado Cripto', color: '#9B7AFF', holdings: [] },
-    { id: 3, name: 'Dividendos',     color: '#FF5B5B', holdings: [] }
-  ])
+  const portfolios = ref([])
+  const loadingPortfolios = ref(false)
+  const portfoliosError = ref(null)
 
-  const activePortfolioId = ref(1)
+  const activePortfolioId = ref(null)
 
   // ─── Estado: Modal / Flujo de transacción ────────
   const isTransactionModalOpen = ref(false)
@@ -34,6 +34,31 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   )
 
   // ─── Acciones: Portfolio ──────────────────────────
+  async function fetchPortfolios() {
+    if (!currentUser.value) return
+
+    loadingPortfolios.value = true
+    portfoliosError.value = null
+
+    const { data, error } = await supabase
+      .from('Portfolio')
+      .select('*')
+      .eq('user_id', currentUser.value.id)
+
+    if (error) {
+      console.error('Error trayendo portfolios:', error)
+      portfoliosError.value = error.message
+    } else {
+      portfolios.value = data
+      // Seleccionar el primero por defecto si no hay ninguno activo
+      if (!activePortfolioId.value && data.length > 0) {
+        activePortfolioId.value = data[0].id
+      }
+    }
+
+    loadingPortfolios.value = false
+  }
+
   function setActivePortfolio(id) {
     activePortfolioId.value = id
   }
@@ -97,8 +122,11 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   return {
     // portfolios
     portfolios,
+    loadingPortfolios,
+    portfoliosError,
     activePortfolioId,
     activePortfolio,
+    fetchPortfolios,
     setActivePortfolio,
     // modal
     isTransactionModalOpen,

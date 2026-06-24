@@ -95,9 +95,14 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { Check, Plus, X } from 'lucide-vue-next'
-import { portfolios, fetchPortfolios } from '@/composables/usePortfolios.js'
-import { selectedPortfolioId, selectPortfolio } from '@/composables/usePortfolioSelection.js'
+import { storeToRefs } from 'pinia'
+import { usePortfolioStore } from '@/stores/portfolioStore.js'
 import { supabase } from '@/lib/supabase.js'
+
+const store = usePortfolioStore()
+// Alias con los mismos nombres que usaba el composable → el resto del archivo no cambia
+const { portfolios, activePortfolioId: selectedPortfolioId } = storeToRefs(store)
+const { fetchPortfolios, setActivePortfolio: selectPortfolio } = store
 
 const portfolioABorrar = ref(null)
 const mostrarConfirmacion = ref(false)
@@ -119,7 +124,7 @@ const confirmacionValida = computed(() =>
 
 onMounted(async () => {
   await fetchPortfolios()
-  selectedPortfolioId.value = portfolios.value[0]?.id ?? null
+  // El store ya selecciona el primer portfolio automáticamente
 })
 
 function startAddPortfolio() {
