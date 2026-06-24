@@ -2,12 +2,12 @@
   <div class="footer">
     <div class="user">
       <div class="avatar">
-        <span class="avatar-letter">M</span>
-      </div>
+      {{currentUser?.nombre?.charAt(0)?.toUpperCase() || "?"}}
+    </div>
       
       <div class="user-details">
-        <span class="user-name">Matías</span>
-        <span class="user-plan">Pro · Inversor</span>
+        <span class="user-name">{{ currentUser?.nombre }}</span>
+        <span class="user-plan">{{ currentUser?.plan }}</span>
       </div>
     </div>
     <Settings class="settings-icon" />
@@ -16,6 +16,7 @@
 
 <script setup>
 import { Settings } from 'lucide-vue-next'
+import { currentUser } from "@/composables/useAuth"
 </script>
 
 <style scoped>
