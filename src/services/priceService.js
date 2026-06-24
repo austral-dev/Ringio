@@ -21,13 +21,18 @@ export async function fetchStockPrice(ticker) {
 
   const meta = result.meta
 
+  const change24hPct = meta.regularMarketChangePercent
+    ?? (meta.chartPreviousClose
+      ? ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
+      : 0)
+
   return {
     ticker: meta.symbol,
     name: meta.shortName || meta.symbol,
     price: meta.regularMarketPrice,
     currency: meta.currency,
-    change24h: meta.regularMarketPrice - meta.chartPreviousClose,
-    change24hPct: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
+    change24h: meta.regularMarketChange ?? (meta.regularMarketPrice - (meta.chartPreviousClose ?? meta.regularMarketPrice)),
+    change24hPct
   }
 }
 
