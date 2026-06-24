@@ -2,20 +2,26 @@
   <div class="footer">
     <div class="user">
       <div class="avatar">
-        <span class="avatar-letter">M</span>
+        <img v-if="profile.avatarUrl" class="avatar-image" :src="profile.avatarUrl" alt="Foto de perfil" />
+        <span v-else class="avatar-letter">{{ userInitial }}</span>
       </div>
       
       <div class="user-details">
-        <span class="user-name">Matías</span>
-        <span class="user-plan">Pro · Inversor</span>
+        <span class="user-name">{{ profile.displayName }}</span>
+        <span class="user-plan">{{ profileSubtitle }}</span>
       </div>
     </div>
-    <Settings class="settings-icon" />
+    <button class="settings-button" type="button" aria-label="Abrir perfil" @click="openProfilePanel">
+      <Settings class="settings-icon" />
+    </button>
   </div>
 </template>
 
 <script setup>
 import { Settings } from 'lucide-vue-next'
+import { useUserProfile } from '@/composables/useUserProfile.js'
+
+const { profile, userInitial, profileSubtitle, openProfilePanel } = useUserProfile()
 </script>
 
 <style scoped>
@@ -46,6 +52,13 @@ import { Settings } from 'lucide-vue-next'
   flex-shrink: 0;
 }
 
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .avatar-letter {
   font-size: 13px;
   font-weight: 600;
@@ -54,6 +67,14 @@ import { Settings } from 'lucide-vue-next'
 .user-details {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.user-name,
+.user-plan {
+  display: block;
 }
 
 .user-name {
@@ -67,6 +88,23 @@ import { Settings } from 'lucide-vue-next'
   color: var(--muted-foreground);
 }
 
+.settings-button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.settings-button:hover {
+  border-color: var(--border);
+  background: var(--secondary);
+}
+
 .settings-icon {
   width: 16px;
   height: 16px;
@@ -75,7 +113,7 @@ import { Settings } from 'lucide-vue-next'
   transition: color 0.15s;
 }
 
-.settings-icon:hover {
+.settings-button:hover .settings-icon {
   color: var(--foreground);
 }
 </style>
