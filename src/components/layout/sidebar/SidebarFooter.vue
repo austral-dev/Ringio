@@ -2,20 +2,25 @@
   <div class="footer">
     <div class="user">
       <div class="avatar">
-        <span class="avatar-letter">M</span>
+        <span class="avatar-letter">{{ userInitial }}</span>
       </div>
       
       <div class="user-details">
-        <span class="user-name">Matías</span>
-        <span class="user-plan">Pro · Inversor</span>
+        <span class="user-name">{{ profile.displayName }}</span>
+        <span class="user-plan">{{ profileSubtitle }}</span>
       </div>
     </div>
-    <Settings class="settings-icon" />
+    <button class="settings-button" type="button" aria-label="Abrir perfil" @click="openProfilePanel">
+      <Settings class="settings-icon" />
+    </button>
   </div>
 </template>
 
 <script setup>
 import { Settings } from 'lucide-vue-next'
+import { useUserProfile } from '@/composables/useUserProfile.js'
+
+const { profile, userInitial, profileSubtitle, openProfilePanel } = useUserProfile()
 </script>
 
 <style scoped>
@@ -67,6 +72,23 @@ import { Settings } from 'lucide-vue-next'
   color: var(--muted-foreground);
 }
 
+.settings-button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.settings-button:hover {
+  border-color: var(--border);
+  background: var(--secondary);
+}
+
 .settings-icon {
   width: 16px;
   height: 16px;
@@ -75,7 +97,7 @@ import { Settings } from 'lucide-vue-next'
   transition: color 0.15s;
 }
 
-.settings-icon:hover {
+.settings-button:hover .settings-icon {
   color: var(--foreground);
 }
 </style>
