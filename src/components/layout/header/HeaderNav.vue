@@ -5,6 +5,11 @@
       <span class="portfolio-subtitle">Vista general del portafolio</span>
     </div>
     <div class="header-actions">
+      <button class="theme-toggle" type="button" :aria-label="`Cambiar a ${isDarkMode ? 'modo claro' : 'modo oscuro'}`" :title="themeLabel" @click="toggleThemeMode">
+        <Moon v-if="isDarkMode" :size="17" />
+        <Sun v-else :size="17" />
+        <span>{{ isDarkMode ? 'Oscuro' : 'Claro' }}</span>
+      </button>
       <button class="btn-add" @click="store.openTransactionModal()">
         <Plus :size="16" />
         Agregar Transacción
@@ -35,10 +40,12 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { Bell, Plus } from 'lucide-vue-next'
+import { Bell, Moon, Plus, Sun } from 'lucide-vue-next'
 import { usePortfolioStore } from '@/stores/portfolioStore'
+import { useThemeMode } from '@/composables/useThemeMode.js'
 
 const store = usePortfolioStore()
+const { isDarkMode, themeLabel, toggleThemeMode } = useThemeMode()
 const isNotificationsOpen = ref(false)
 const notifications = ref([
   {
@@ -104,13 +111,11 @@ const markAllAsRead = () => {
   gap: 8px;
 }
 
+.theme-toggle,
 .btn-add {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  border: none;
   border-radius: var(--radius-md);
   padding: 8px 16px;
   font-size: 14px;
@@ -119,6 +124,19 @@ const markAllAsRead = () => {
   transition: opacity 0.15s ease;
 }
 
+.theme-toggle {
+  background: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.btn-add {
+  border: none;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.theme-toggle:hover,
 .btn-add:hover {
   opacity: 0.88;
 }
