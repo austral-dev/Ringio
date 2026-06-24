@@ -28,15 +28,19 @@ import { ref, computed } from 'vue';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const chartData = ref({
-    labels: ['Red', 'Blue', 'Yellow'],
+    labels: ['A', 'B', 'C', 'D', 'E', 'F'],
     datasets: [
         {
             label: 'Distribución de activos',
-            data: [65, 15, 20],
+            data: [65, 15, 20, 1, 3, 10],
             backgroundColor: [
-                'rgb(255, 99, 132)',
-                'rgb(54, 162, 235)',
-                'rgb(255, 205, 86)'
+                '#fe6b5b',
+                '#9a7afe',
+                '#3ece8d',
+                '#60a4f9',
+                '#f49d0b',
+                '#1a1a29'
+                
             ]
         }
     ]
