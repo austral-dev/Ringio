@@ -128,8 +128,8 @@ const handleLogin = async () => {
   width: min(100%, 520px);
   border: 1px solid var(--border);
   border-radius: 28px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.35);
+  background: var(--card);
+  box-shadow: 0 28px 90px color-mix(in srgb, var(--foreground) 14%, transparent);
   backdrop-filter: blur(16px);
 }
 
@@ -223,7 +223,7 @@ const handleLogin = async () => {
   margin: 36px 0;
   padding: 18px;
   border-radius: 22px;
-  background: rgba(9, 9, 15, 0.48);
+  background: color-mix(in srgb, var(--muted) 72%, transparent);
   border: 1px solid var(--border);
 }
 
@@ -244,7 +244,7 @@ const handleLogin = async () => {
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
 }
 
 .trust-row strong,
@@ -259,7 +259,7 @@ const handleLogin = async () => {
 }
 
 .form-side {
-  background: rgba(11, 11, 22, 0.52);
+  background: color-mix(in srgb, var(--card) 74%, transparent);
   border-left: 1px solid var(--border);
 }
 

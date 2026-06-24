@@ -219,7 +219,7 @@ function formatCurrency(value) {
 }
 
 .section-label {
-  color: #8b84c6;
+  color: var(--muted-foreground);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -240,7 +240,7 @@ function formatCurrency(value) {
 }
 
 .portfolio-item.active {
-  background: #171625;
+  background: var(--sidebar-accent);
 }
 
 .portfolio-select {
@@ -261,7 +261,7 @@ function formatCurrency(value) {
 }
 
 .portfolio-item:not(.active) .portfolio-select:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--sidebar-accent);
 }
 
 .portfolio-dot {
@@ -280,7 +280,7 @@ function formatCurrency(value) {
 
 .portfolio-name {
   overflow: hidden;
-  color: #f4f1ff;
+  color: var(--sidebar-foreground);
   font-size: 15px;
   font-weight: 800;
   line-height: 1.1;
@@ -289,7 +289,7 @@ function formatCurrency(value) {
 }
 
 .portfolio-value {
-  color: #8b84c6;
+  color: var(--muted-foreground);
   font-family:
     "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     monospace;
@@ -311,10 +311,10 @@ function formatCurrency(value) {
 }
 
 .portfolio-change.positive {
-  color: #3ef59a;
+  color: var(--primary);
 }
 .portfolio-change.negative {
-  color: #ff5b6b;
+  color: var(--destructive);
 }
 
 .remove-portfolio-btn {
@@ -325,9 +325,9 @@ function formatCurrency(value) {
   height: 20px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(9, 9, 15, 0.72);
+  background: var(--popover);
   color: var(--muted-foreground);
   cursor: pointer;
   opacity: 0;
@@ -358,7 +358,7 @@ function formatCurrency(value) {
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: #8b84c6;
+  color: var(--muted-foreground);
   cursor: pointer;
   font-family: var(--font);
   font-size: 15px;
@@ -372,8 +372,8 @@ function formatCurrency(value) {
 }
 
 .new-portfolio-btn:hover {
-  background: rgba(255, 255, 255, 0.035);
-  color: #f4f1ff;
+  background: var(--sidebar-accent);
+  color: var(--sidebar-foreground);
 }
 
 .new-portfolio-form {
@@ -382,7 +382,7 @@ function formatCurrency(value) {
   gap: 8px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: #11101d;
+  background: var(--card);
   margin-top: 6px;
   padding: 10px;
 }
@@ -392,7 +392,7 @@ function formatCurrency(value) {
   height: 34px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--input-background);
   color: var(--foreground);
   font-family: var(--font);
   outline: none;
@@ -467,8 +467,8 @@ function formatCurrency(value) {
 }
 
 :global(.confirm-dialog) {
-  background: #13121f;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 28px;
   width: 360px;
@@ -481,13 +481,13 @@ function formatCurrency(value) {
 :global(.confirm-title) {
   font-size: 17px;
   font-weight: 800;
-  color: #f4f1ff;
+  color: var(--sidebar-foreground);
   margin: 0;
 }
 
 :global(.confirm-text) {
   font-size: 13px;
-  color: #8b84c6;
+  color: var(--muted-foreground);
   line-height: 1.6;
   margin: 0;
 }
@@ -497,21 +497,21 @@ function formatCurrency(value) {
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
-  color: #8b84c6;
+  color: var(--muted-foreground);
   line-height: 1.5;
 }
 
 :global(.confirm-nombre) {
-  color: #f4f1ff;
+  color: var(--sidebar-foreground);
   font-weight: 700;
 }
 
 :global(.confirm-input) {
   width: 100%;
   height: 36px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--input-background);
   color: var(--foreground);
   font-family: var(--font);
   font-size: 13px;
@@ -538,7 +538,7 @@ function formatCurrency(value) {
   font-size: 12px;
   font-weight: 700;
   background: rgba(255, 91, 107, 0.15);
-  color: #ff5b6b;
+  color: var(--destructive);
   border: 1px solid rgba(255, 91, 107, 0.25);
   transition:
     background 0.15s ease,
