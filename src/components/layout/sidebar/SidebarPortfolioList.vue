@@ -1,37 +1,58 @@
 <template>
   <section class="portfolio-section" aria-labelledby="sidebar-portfolios-title">
-    <span id="sidebar-portfolios-title" class="section-label">Mis portafolios</span>
+    <span id="sidebar-portfolios-title" class="section-label"
+      >Mis portafolios</span
+    >
 
     <div class="portfolio-list">
       <article
-        v-for="portfolio in portfolios"
+        v-for="(portfolio, index) in portfolios"
         :key="portfolio.id"
         class="portfolio-item"
         :class="{ active: selectedPortfolioId === portfolio.id }"
       >
-        <button class="portfolio-select" type="button" @click="selectPortfolio(portfolio.id)">
-          <span class="portfolio-dot" :style="{ backgroundColor: portfolio.color }" />
+        <button
+          class="portfolio-select"
+          type="button"
+          @click="selectPortfolio(portfolio.id)"
+        >
+          <span
+            class="portfolio-dot"
+            :style="{
+              backgroundColor: portfolioColors[index % portfolioColors.length],
+            }"
+          />
           <span class="portfolio-info">
-            <span class="portfolio-name">{{ portfolio.name }}</span>
-            <span class="portfolio-value">{{ formatCurrency(portfolio.value) }}</span>
+            <span class="portfolio-name">{{ portfolio.nombre }}</span>
+            <span class="portfolio-value">{{
+              formatCurrency(portfolio.valorTotal)
+            }}</span>
           </span>
-          <span class="portfolio-change" :class="portfolio.change >= 0 ? 'positive' : 'negative'">
-            {{ portfolio.change >= 0 ? '+' : '' }}{{ portfolio.change.toFixed(2) }}%
+          <span
+            class="portfolio-change"
+            :class="portfolio.variacion24h >= 0 ? 'positive' : 'negative'"
+          >
+            {{ (portfolio.variacion24h ?? 0) >= 0 ? "+" : ""
+            }}{{ (portfolio.variacion24h ?? 0).toFixed(2) }}%
           </span>
         </button>
 
         <button
           class="remove-portfolio-btn"
           type="button"
-          :aria-label="`Quitar portafolio ${portfolio.name}`"
-          @click="removePortfolio(portfolio.id)"
+          :aria-label="`Quitar portafolio ${portfolio.nombre}`"
+          @click="pedirConfirmacion(portfolio.id)"
         >
           <X :size="13" />
         </button>
       </article>
     </div>
 
-    <form v-if="isAdding" class="new-portfolio-form" @submit.prevent="addPortfolio">
+    <form
+      v-if="isAdding"
+      class="new-portfolio-form"
+      @submit.prevent="addPortfolio"
+    >
       <label class="sr-only" for="portfolio-name">Nombre del portafolio</label>
       <input
         id="portfolio-name"
@@ -41,15 +62,16 @@
         maxlength="32"
         autofocus
       />
-
-      <label class="sr-only" for="portfolio-value">Valor del portafolio</label>
+      <label class="sr-only" for="portfolio-description"
+        >Descripción del portafolio</label
+      >
       <input
-        id="portfolio-value"
-        v-model.number="newPortfolioValue"
-        type="number"
-        min="0"
-        step="1"
-        placeholder="Valor"
+        id="portfolio-description"
+        v-model.trim="newPortfolioDescription"
+        type="textarea"
+        placeholder="Descripción"
+        maxlength="500"
+        autofocus
       />
 
       <div class="form-actions">
@@ -63,77 +85,128 @@
       </div>
     </form>
 
-    <button v-else class="new-portfolio-btn" type="button" @click="startAddPortfolio">
+    <button
+      v-else
+      class="new-portfolio-btn"
+      type="button"
+      @click="startAddPortfolio"
+    >
       <Plus :size="15" />
       Nuevo portafolio
     </button>
   </section>
+
+  <Teleport to="body">
+    <div v-if="mostrarConfirmacion" class="confirm-overlay">
+      <div class="confirm-dialog">
+        <h3 class="confirm-title">Borrar portfolio</h3>
+        <p class="confirm-text">
+          Esta acción borrará <strong>{{ portfolioABorrarNombre }}</strong> y
+          todas sus transacciones. No se puede deshacer.
+        </p>
+        <label class="confirm-label">
+          Escribí
+          <span class="confirm-nombre">{{ portfolioABorrarNombre }}</span> para
+          confirmar
+          <input
+            v-model="confirmNombre"
+            class="confirm-input"
+            type="text"
+            :placeholder="portfolioABorrarNombre"
+            autofocus
+          />
+        </label>
+        <div class="form-actions">
+          <button class="cancel-btn" @click="cancelarBorrado">Cancelar</button>
+          <button
+            class="delete-btn"
+            :disabled="!confirmacionValida"
+            @click="confirmarBorrado"
+          >
+            Borrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { Check, Plus, X } from 'lucide-vue-next'
+import { computed, ref, onMounted } from "vue";
+import { Check, Plus, X } from "lucide-vue-next";
+import { storeToRefs } from "pinia";
+import { usePortfolioStore } from "@/stores/portfolioStore.js";
 
-const portfolioColors = ['#3ECF8E', '#9B7AFF', '#FF6B5B', '#60A5FA', '#F59E0B']
+const store = usePortfolioStore();
+// Alias con los mismos nombres que usaba el composable → el resto del archivo no cambia
+const { portfolios, activePortfolioId: selectedPortfolioId } =
+  storeToRefs(store);
+const { fetchPortfolios, setActivePortfolio: selectPortfolio } = store;
 
-const portfolios = ref([
-  { id: 1, name: 'Tech & Growth', value: 127431, change: 2.28, color: '#3ECF8E' },
-  { id: 2, name: 'Mercado Cripto', value: 68908, change: 4.02, color: '#9B7AFF' },
-  { id: 3, name: 'Dividendos', value: 23455, change: -0.41, color: '#FF6B5B' },
-])
+const portfolioABorrar = ref(null);
+const mostrarConfirmacion = ref(false);
 
-const selectedPortfolioId = ref(portfolios.value[0]?.id ?? null)
-const isAdding = ref(false)
-const newPortfolioName = ref('')
-const newPortfolioValue = ref(null)
+const portfolioColors = ["#3ECF8E", "#9B7AFF", "#FF6B5B", "#60A5FA", "#F59E0B"];
 
-const canAddPortfolio = computed(() => newPortfolioName.value.length > 0 && Number(newPortfolioValue.value) >= 0)
+const isAdding = ref(false);
+const newPortfolioName = ref("");
+const newPortfolioDescription = ref("");
+const confirmNombre = ref("");
+const canAddPortfolio = computed(() => newPortfolioName.value.length > 0);
 
-function selectPortfolio(id) {
-  selectedPortfolioId.value = id
-}
+const portfolioABorrarNombre = computed(
+  () =>
+    portfolios.value.find((p) => p.id === portfolioABorrar.value)?.nombre ?? "",
+);
+
+const confirmacionValida = computed(
+  () => confirmNombre.value === portfolioABorrarNombre.value,
+);
+
+onMounted(async () => {
+  await fetchPortfolios();
+  // El store ya selecciona el primer portfolio automáticamente
+});
 
 function startAddPortfolio() {
-  isAdding.value = true
+  isAdding.value = true;
 }
 
 function cancelAddPortfolio() {
-  isAdding.value = false
-  newPortfolioName.value = ''
-  newPortfolioValue.value = null
+  isAdding.value = false;
+  newPortfolioName.value = "";
+  newPortfolioDescription.value = "";
 }
 
-function addPortfolio() {
-  if (!canAddPortfolio.value) return
-
-  const nextIndex = portfolios.value.length
-  const newPortfolio = {
-    id: Date.now(),
-    name: newPortfolioName.value,
-    value: Number(newPortfolioValue.value),
-    change: 0,
-    color: portfolioColors[nextIndex % portfolioColors.length],
-  }
-
-  portfolios.value.push(newPortfolio)
-  selectedPortfolioId.value = newPortfolio.id
-  cancelAddPortfolio()
+async function addPortfolio() {
+  if (!canAddPortfolio.value) return;
+  await store.addPortfolio(newPortfolioName.value, newPortfolioDescription.value);
+  cancelAddPortfolio();
 }
 
-function removePortfolio(id) {
-  portfolios.value = portfolios.value.filter((portfolio) => portfolio.id !== id)
+function pedirConfirmacion(id) {
+  portfolioABorrar.value = id;
+  mostrarConfirmacion.value = true;
+  confirmNombre.value = "";
+}
 
-  if (selectedPortfolioId.value === id) {
-    selectedPortfolioId.value = portfolios.value[0]?.id ?? null
-  }
+function cancelarBorrado() {
+  portfolioABorrar.value = null;
+  mostrarConfirmacion.value = false;
+  confirmNombre.value = "";
+}
+
+async function confirmarBorrado() {
+  await store.removePortfolio(portfolioABorrar.value);
+  cancelarBorrado();
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(value ?? 0);
 }
 </script>
 
@@ -217,7 +290,9 @@ function formatCurrency(value) {
 
 .portfolio-value {
   color: #8b84c6;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -226,7 +301,9 @@ function formatCurrency(value) {
 
 .portfolio-change {
   align-self: center;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
@@ -236,7 +313,6 @@ function formatCurrency(value) {
 .portfolio-change.positive {
   color: #3ef59a;
 }
-
 .portfolio-change.negative {
   color: #ff5b6b;
 }
@@ -256,7 +332,11 @@ function formatCurrency(value) {
   cursor: pointer;
   opacity: 0;
   transform: translateY(-2px);
-  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .portfolio-item:hover .remove-portfolio-btn,
@@ -286,7 +366,9 @@ function formatCurrency(value) {
   margin-top: 6px;
   padding: 10px 11px;
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .new-portfolio-btn:hover {
@@ -343,6 +425,10 @@ function formatCurrency(value) {
   font-weight: 700;
 }
 
+.cancel-btn:hover {
+  background: rgba(15, 255, 87, 0.193);
+}
+
 .confirm-btn {
   background: var(--primary);
   color: var(--primary-foreground);
@@ -368,5 +454,104 @@ function formatCurrency(value) {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+:global(.confirm-overlay) {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+}
+
+:global(.confirm-dialog) {
+  background: #13121f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 28px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+:global(.confirm-title) {
+  font-size: 17px;
+  font-weight: 800;
+  color: #f4f1ff;
+  margin: 0;
+}
+
+:global(.confirm-text) {
+  font-size: 13px;
+  color: #8b84c6;
+  line-height: 1.6;
+  margin: 0;
+}
+
+:global(.confirm-label) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: #8b84c6;
+  line-height: 1.5;
+}
+
+:global(.confirm-nombre) {
+  color: #f4f1ff;
+  font-weight: 700;
+}
+
+:global(.confirm-input) {
+  width: 100%;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground);
+  font-family: var(--font);
+  font-size: 13px;
+  outline: none;
+  padding: 0 12px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+:global(.confirm-input:focus) {
+  border-color: rgba(255, 91, 91, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 91, 91, 0.08);
+}
+
+:global(.delete-btn) {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 91, 107, 0.15);
+  color: #ff5b6b;
+  border: 1px solid rgba(255, 91, 107, 0.25);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+:global(.delete-btn:not(:disabled):hover) {
+  background: rgba(255, 91, 107, 0.25);
+  box-shadow: 0 0 12px rgba(255, 91, 107, 0.2);
+}
+
+:global(.delete-btn:disabled) {
+  cursor: not-allowed;
+  opacity: 0.35;
 }
 </style>

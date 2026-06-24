@@ -8,11 +8,6 @@
           Visualizá el valor total, rendimiento diario y distribución de cada estrategia de inversión.
         </p>
       </div>
-
-      <button class="primary-action" type="button">
-        <Plus :size="17" />
-        Nuevo portafolio
-      </button>
     </div>
 
     <div class="portfolio-summary">
@@ -25,7 +20,7 @@
 
     <div class="portfolio-grid">
       <article
-        v-for="portfolio in portfolios"
+        v-for="portfolio in portfoliosMapeados"
         :key="portfolio.id"
         class="portfolio-card"
         :class="{ featured: portfolio.featured }"
@@ -75,71 +70,46 @@ import {
   BarChart3,
   Coins,
   MoreHorizontal,
-  Plus,
   ShieldCheck,
   TrendingDown,
   TrendingUp,
 } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
+import { usePortfolioStore } from '@/stores/portfolioStore.js'
 
-const portfolios = [
-  {
-    id: 1,
-    name: 'Tech & Growth',
-    description: 'Acciones de crecimiento, software e inteligencia artificial.',
-    value: 127431,
-    change: 2.28,
-    holdings: 12,
-    color: '#3ECF8E',
-    icon: BarChart3,
-    featured: true,
-    allocation: [
-      { label: 'Acciones', value: 64, color: '#3ECF8E' },
-      { label: 'ETFs', value: 22, color: '#9B7AFF' },
-      { label: 'Caja', value: 14, color: '#60A5FA' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Mercado Cripto',
-    description: 'Exposición diversificada a Bitcoin, Ethereum y altcoins.',
-    value: 68988,
-    change: 4.02,
-    holdings: 8,
-    color: '#9B7AFF',
-    icon: Coins,
-    featured: false,
-    allocation: [
-      { label: 'Bitcoin', value: 48, color: '#F59E0B' },
-      { label: 'Ethereum', value: 34, color: '#60A5FA' },
-      { label: 'Altcoins', value: 18, color: '#9B7AFF' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Dividendos',
-    description: 'Empresas maduras con pagos recurrentes y baja volatilidad.',
-    value: 23455,
-    change: -0.41,
-    holdings: 6,
-    color: '#FF5B5B',
-    icon: ShieldCheck,
-    featured: false,
-    allocation: [
-      { label: 'Consumo', value: 38, color: '#FF6B5B' },
-      { label: 'Salud', value: 32, color: '#3ECF8E' },
-      { label: 'Utilities', value: 30, color: '#F59E0B' },
-    ],
-  },
-]
+const store = usePortfolioStore()
+const { portfolios, loadingPortfolios } = storeToRefs(store)
+
+// Íconos por defecto que rotan cuando no hay uno asignado en la BD
+const iconosPorDefecto = [BarChart3, Coins, ShieldCheck]
+
+// Mapeamos los campos reales de Supabase a lo que necesita el template
+const portfoliosMapeados = computed(() =>
+  portfolios.value.map((p, i) => ({
+    id: p.id,
+    name: p.nombre,
+    description: p.descripcion ?? '',
+    value: p.valorTotal ?? 0,
+    change: p.variacion24h ?? 0,
+    holdings: p.cantidadActivos ?? 0,
+    color: p.color ?? ['#3ECF8E', '#9B7AFF', '#FF5B5B', '#60A5FA', '#F59E0B'][i % 5],
+    icon: iconosPorDefecto[i % iconosPorDefecto.length],
+    featured: i === 0,
+    allocation: [], // sin datos de asignación por ahora
+  }))
+)
 
 const metrics = computed(() => {
-  const totalValue = portfolios.reduce((sum, portfolio) => sum + portfolio.value, 0)
-  const bestPortfolio = [...portfolios].sort((a, b) => b.change - a.change)[0]
+  const ps = portfoliosMapeados.value
+  if (ps.length === 0) return []
+
+  const totalValue = ps.reduce((sum, p) => sum + p.value, 0)
+  const bestPortfolio = [...ps].sort((a, b) => b.change - a.change)[0]
 
   return [
-    { label: 'Valor total', value: formatCurrency(totalValue), detail: '+2.16% promedio hoy', tone: 'positive' },
-    { label: 'Portafolios', value: portfolios.length.toString(), detail: 'estrategias activas', tone: 'muted' },
-    { label: 'Mejor rendimiento', value: bestPortfolio.name, detail: `+${bestPortfolio.change}% hoy`, tone: 'positive' },
+    { label: 'Valor total', value: formatCurrency(totalValue), detail: 'en todos los portafolios', tone: 'muted' },
+    { label: 'Portafolios', value: ps.length.toString(), detail: 'estrategias activas', tone: 'muted' },
+    { label: 'Mejor rendimiento', value: bestPortfolio.name, detail: bestPortfolio.change !== 0 ? `${bestPortfolio.change > 0 ? '+' : ''}${bestPortfolio.change.toFixed(2)}% hoy` : 'Sin variación', tone: bestPortfolio.change >= 0 ? 'positive' : '' },
   ]
 })
 

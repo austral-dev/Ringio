@@ -16,6 +16,7 @@
       </main>
     </div>
   </div>
+  <AssetSearchModal />
 </template>
 
 <script setup>
@@ -52,6 +53,15 @@ const userProfile = ref({ ...defaultProfile })
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 76px 16px 20px;
+  }
 }
 
 @media (max-width: 768px) {
