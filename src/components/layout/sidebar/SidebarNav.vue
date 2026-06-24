@@ -2,9 +2,9 @@
   <div class="section">
     <span class="section-label">Menú</span>
     <nav class="nav">
-      <a class="nav-item active" href="#">
+      <button class="nav-item" :class="{ active: activeView === 'dashboard' }" type="button" @click="$emit('open-dashboard')">
         <LayoutDashboard class="nav-icon" /> Dashboard
-      </a>
+      </button>
       <a class="nav-item" href="#">
         <TrendingUp class="nav-icon" /> Mercados
       </a>
@@ -21,6 +21,15 @@
 
 <script setup>
 import { LayoutDashboard, TrendingUp, Newspaper, Bell } from 'lucide-vue-next'
+
+defineProps({
+  activeView: {
+    type: String,
+    default: 'dashboard',
+  },
+})
+
+defineEmits(['open-dashboard'])
 </script>
 
 <style scoped>
@@ -47,15 +56,20 @@ import { LayoutDashboard, TrendingUp, Newspaper, Bell } from 'lucide-vue-next'
 }
 
 .nav-item {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px;
+  border: 0;
   border-radius: var(--radius-md);
+  background: transparent;
   color: var(--muted-foreground);
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
   transition: all 0.15s;
 }
 

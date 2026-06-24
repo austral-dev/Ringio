@@ -6,8 +6,8 @@
     <aside class="sidebar" :class="{ open: isOpen }">
       <SidebarLogo />
       <SidebarPortfolioList />
-      <SidebarNav />
-      <SidebarFooter />
+      <SidebarNav :active-view="activeView" @open-dashboard="$emit('open-dashboard')" />
+      <SidebarFooter :user-profile="userProfile" @open-profile="$emit('open-profile')" />
     </aside>
   </div>
 </template>
@@ -18,6 +18,19 @@ import SidebarPortfolioList from '@/components/layout/sidebar/SidebarPortfolioLi
 import SidebarNav from '@/components/layout/sidebar/SidebarNav.vue'
 import SidebarLogo from '@/components/layout/sidebar/SidebarLogo.vue'
 import SidebarFooter from '@/components/layout/sidebar/SidebarFooter.vue'
+
+defineProps({
+  userProfile: {
+    type: Object,
+    required: true,
+  },
+  activeView: {
+    type: String,
+    default: 'dashboard',
+  },
+})
+
+defineEmits(['open-dashboard', 'open-profile'])
 
 const isOpen = ref(false)
 </script>
