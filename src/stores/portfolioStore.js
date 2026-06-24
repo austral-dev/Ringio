@@ -41,7 +41,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       .eq('portfolio_id', portfolioId)
 
     if (!transacciones || transacciones.length === 0) {
-      return { valorTotal: 0, cantidadActivos: 0, variacion24h: 0 }
+      return { valorTotal: 0, cantidadActivos: 0, variacion24h: 0, rendimiento: 0 }
     }
 
     const activoIds = [...new Set(transacciones.map(tx => tx.activo_id))]
@@ -50,25 +50,56 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       .select('*')
       .in('id', activoIds)
 
-    if (!activos) return { valorTotal: 0, cantidadActivos: 0, variacion24h: 0 }
+    if (!activos) return { valorTotal: 0, cantidadActivos: 0, variacion24h: 0, rendimiento: 0 }
+
+    // Traer variación 24h de cada activo desde la API
+    const preciosAPI = await Promise.all(
+      activos.map(async (activo) => {
+        try {
+          if (activo.tipo === 'Crypto' && activo.codigo) {
+            const data = await fetchCryptoPrice(activo.codigo)
+            return { id: activo.id, change24hPct: data.change24hPct }
+          } else if (activo.tipo === 'Acción' && activo.ticker) {
+            const data = await fetchStockPrice(activo.ticker)
+            return { id: activo.id, change24hPct: data.change24hPct }
+          }
+        } catch {
+          // Si falla la API, usamos 0
+        }
+        return { id: activo.id, change24hPct: 0 }
+      })
+    )
+
+    const cambiosPorId = Object.fromEntries(preciosAPI.map(p => [p.id, p.change24hPct]))
 
     let valorTotal = 0
     let cantidadActivos = 0
+    let montoInvertido = 0
+    let sumaPonderada = 0
 
     for (const activo of activos) {
       const txs = transacciones.filter(tx => tx.activo_id === activo.id)
       let cantidad = 0
       for (const tx of txs) {
-        if (tx.tipo === 'compra') cantidad += tx.cantidad
-        else if (tx.tipo === 'venta') cantidad -= tx.cantidad
+        if (tx.tipo === 'compra') {
+          cantidad += tx.cantidad
+          montoInvertido += tx.cantidad * tx.precio
+        } else if (tx.tipo === 'venta') {
+          cantidad -= tx.cantidad
+        }
       }
       if (cantidad > 0) {
-        valorTotal += cantidad * activo.valor
+        const montoActivo = cantidad * activo.valor
+        valorTotal += montoActivo
         cantidadActivos++
+        sumaPonderada += montoActivo * (cambiosPorId[activo.id] ?? 0)
       }
     }
 
-    return { valorTotal, cantidadActivos, variacion24h: 0 }
+    const rendimiento = montoInvertido > 0 ? ((valorTotal - montoInvertido) / montoInvertido) * 100 : 0
+    const variacion24h = valorTotal > 0 ? sumaPonderada / valorTotal : 0
+
+    return { valorTotal, montoInvertido, cantidadActivos, variacion24h, rendimiento }
   }
 
   async function fetchPortfolios() {
