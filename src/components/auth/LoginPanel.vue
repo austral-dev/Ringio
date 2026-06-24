@@ -59,10 +59,11 @@
           <a href="#">Olvidé mi contraseña</a>
         </div>
 
-        <button class="login-button" type="submit">
-          Entrar al dashboard
-          <ArrowRight :size="17" />
-        </button>
+      <AppLoader v-if="loading" />
+      <button v-else type="submit" class="login-button">
+        Entrar al Dashboard
+        <ArrowRight :size="17" />
+      </button>
 
         <p class="signup-copy">¿No tenés cuenta? <a href="#">Crear cuenta gratis</a></p>
       </form>
@@ -74,6 +75,8 @@
 import { ref } from 'vue'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-vue-next'
 import { loginAI } from '@/lib/aiAuth.js'
+import { loginWithCredentials } from '@/composables/useAuth.js'
+import AppLoader from '@/components/AppLoader.vue'
 
 const emit = defineEmits(['login'])
 
@@ -81,14 +84,18 @@ const email = ref('matias@ringio.app')
 const password = ref('ringio-demo')
 const remember = ref(true)
 const showPassword = ref(false)
+const loading = ref(false)
 const bars = [42, 56, 44, 72, 63, 86, 76, 94]
 
 const handleLogin = async () => {
+  loading.value = true
   try {
-    const token = await loginAI(email.value, password.value)
-    console.log('Token recibido!')
+    await loginAI(email.value, password.value)
+    await loginWithCredentials(email.value, password.value)
   } catch (err) {
-    console.error('No se pudo conectar con la API de IA:', err)
+    console.error('Error en el login:', err)
+  } finally {
+    loading.value = false
   }
   emit('login')
 }
