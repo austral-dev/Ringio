@@ -13,6 +13,7 @@
     </div>
   </div>
   <AssetSearchModal />
+  <UserProfilePanel />
 </template>
 
 <script setup>
@@ -24,6 +25,7 @@ import MyPortfoliosPanel from '@/components/portfolio/MyPortfoliosPanel.vue'
 import AppCharts from '@/components/layout/charts/AppCharts.vue'
 import AppAssets from '@/components/layout/assets/AppAssets.vue'
 import AssetSearchModal from '@/components/transaction/AssetSearchModal.vue'
+import UserProfilePanel from '@/components/profile/UserProfilePanel.vue'
 
 const isAuthenticated = ref(false)
 </script>
