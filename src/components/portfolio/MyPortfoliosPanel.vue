@@ -133,8 +133,8 @@ function formatCurrency(value) {
 .summary-card,
 .portfolio-card {
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)), var(--card, var(--surface));
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+  background: var(--card, var(--surface));
+  box-shadow: 0 18px 60px color-mix(in srgb, var(--foreground) 10%, transparent);
 }
 
 .panel-hero {
@@ -260,8 +260,7 @@ function formatCurrency(value) {
   border-color: rgba(62, 207, 142, 0.28);
   background:
     radial-gradient(circle at 16% 0%, rgba(62, 207, 142, 0.13), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
-    var(--card, var(--surface));
+    color-mix(in srgb, var(--primary) 5%, var(--card, var(--surface)));
 }
 
 .portfolio-card-header,
@@ -291,7 +290,7 @@ function formatCurrency(value) {
   place-items: center;
   border-color: var(--border);
   color: var(--muted-foreground);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--secondary);
 }
 
 .icon-action:hover {
@@ -351,7 +350,7 @@ function formatCurrency(value) {
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--muted);
 }
 
 .allocation-row span {

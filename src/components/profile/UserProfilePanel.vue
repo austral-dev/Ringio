@@ -110,7 +110,7 @@ import { reactive, watch } from 'vue'
 import { Save, X } from 'lucide-vue-next'
 import { useUserProfile } from '@/composables/useUserProfile.js'
 
-const { profile, userInitial, profileSubtitle, isProfilePanelOpen, closeProfilePanel, updateProfile } = useUserProfile()
+const { profile, userInitial, profileSubtitle, isProfilePanelOpen, closeProfilePanel, updateProfile, setAvatarFileToUpload } = useUserProfile()
 
 const createDraft = () => ({
   displayName: profile.displayName,
@@ -131,6 +131,8 @@ const resetDraft = () => {
 const handleAvatarUpload = (event) => {
   const [file] = event.target.files
   if (!file) return
+
+  setAvatarFileToUpload(file)
 
   const reader = new FileReader()
   reader.onload = () => {

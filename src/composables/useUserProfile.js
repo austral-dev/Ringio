@@ -20,6 +20,7 @@ const profile = reactive({
 })
 
 const isProfilePanelOpen = ref(false)
+const avatarFileToUpload = ref(null)
 
 const userInitial = computed(() => profile.displayName.trim().charAt(0).toUpperCase() || 'R')
 const profileSubtitle = computed(() => `${profile.plan} · ${profile.role}`)
@@ -68,6 +69,14 @@ const closeProfilePanel = () => {
   isProfilePanelOpen.value = false
 }
 
+const setAvatarFileToUpload = (file) => {
+  avatarFileToUpload.value = file
+}
+
+const clearAvatarFileToUpload = () => {
+  avatarFileToUpload.value = null
+}
+
 const updateProfile = (nextProfile) => {
   hydrateProfile({
     ...profile,
@@ -79,6 +88,12 @@ const updateProfile = (nextProfile) => {
   })
 }
 
+
+const getAvatarUploadPayload = () => ({
+  file: avatarFileToUpload.value,
+  suggestedPath: avatarFileToUpload.value ? `users/${currentUser.value?.id ?? 'pending-user'}/avatar-${Date.now()}-${avatarFileToUpload.value.name}` : '',
+  previewDataUrl: profile.avatarUrl,
+})
 
 const profileToDatabasePayload = () => ({
   nombre: profile.displayName,
@@ -102,5 +117,9 @@ export const useUserProfile = () => ({
   openProfilePanel,
   closeProfilePanel,
   updateProfile,
+  avatarFileToUpload,
+  setAvatarFileToUpload,
+  clearAvatarFileToUpload,
+  getAvatarUploadPayload,
   profileToDatabasePayload,
 })
