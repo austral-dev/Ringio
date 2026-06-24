@@ -15,6 +15,7 @@ const profile = reactive({
   plan: 'Pro',
   phone: '',
   location: '',
+  avatarUrl: '',
   preferences: { ...defaultPreferences },
 })
 
@@ -30,6 +31,7 @@ const normalizeUserProfile = (user) => ({
   plan: user?.plan || 'Pro',
   phone: user?.telefono || user?.phone || '',
   location: user?.ubicacion || user?.location || '',
+  avatarUrl: user?.avatar_url || user?.avatarUrl || user?.foto_perfil || user?.profile_photo_url || '',
   preferences: {
     currency: user?.currency || defaultPreferences.currency,
     riskProfile: user?.risk_profile || user?.riskProfile || defaultPreferences.riskProfile,
@@ -45,6 +47,7 @@ const hydrateProfile = (nextProfile) => {
   profile.plan = nextProfile.plan
   profile.phone = nextProfile.phone
   profile.location = nextProfile.location
+  profile.avatarUrl = nextProfile.avatarUrl
   profile.preferences = { ...defaultPreferences, ...nextProfile.preferences }
 }
 
@@ -76,6 +79,21 @@ const updateProfile = (nextProfile) => {
   })
 }
 
+
+const profileToDatabasePayload = () => ({
+  nombre: profile.displayName,
+  email: profile.email,
+  telefono: profile.phone,
+  ubicacion: profile.location,
+  avatar_url: profile.avatarUrl,
+  plan: profile.plan,
+  role: profile.role,
+  currency: profile.preferences.currency,
+  risk_profile: profile.preferences.riskProfile,
+  notifications: profile.preferences.notifications,
+  weekly_summary: profile.preferences.weeklySummary,
+})
+
 export const useUserProfile = () => ({
   profile,
   userInitial,
@@ -84,4 +102,5 @@ export const useUserProfile = () => ({
   openProfilePanel,
   closeProfilePanel,
   updateProfile,
+  profileToDatabasePayload,
 })
