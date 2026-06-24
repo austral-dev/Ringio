@@ -20,7 +20,7 @@
 
     <div class="portfolio-grid">
       <article
-        v-for="portfolio in portfoliosMapeados"
+        v-for="portfolio in portfoliosMapeados.slice(0, 3)"
         :key="portfolio.id"
         class="portfolio-card"
         :class="{ featured: portfolio.featured }"
