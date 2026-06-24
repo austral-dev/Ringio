@@ -13,9 +13,14 @@
           <span class="portfolio-dot" :style="{ backgroundColor: portfolioColors[index % portfolioColors.length] }" />
           <span class="portfolio-info">
             <span class="portfolio-name">{{ portfolio.nombre }}</span>
-            <span class="portfolio-value">—</span>
+            <span class="portfolio-value">{{ formatCurrency(portfolio.valorTotal) }}</span>
           </span>
-          <span class="portfolio-change">—</span>
+          <span
+              class="portfolio-change"
+              :class="portfolio.variacion24h >= 0 ? 'positive' : 'negative'"
+          >
+            {{ portfolio.variacion24h >= 0 ? '+' : '' }}{{ portfolio.variacion24h.toFixed(2) }}%
+          </span>
         </button>
 
         <button
@@ -160,7 +165,7 @@ async function addPortfolio() {
     console.error(error)
     return
   }
-  portfolios.value.push(data)
+  portfolios.value.push({ ...data, valorTotal: 0, cantidadActivos: 0, variacion24h: 0 })
   selectedPortfolioId.value = data.id
   cancelAddPortfolio()
 }
@@ -187,6 +192,14 @@ async function confirmarBorrado() {
     selectedPortfolioId.value = portfolios.value[0]?.id ?? null
   }
   cancelarBorrado()
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+    }).format(value ?? 0)
 }
 </script>
 
