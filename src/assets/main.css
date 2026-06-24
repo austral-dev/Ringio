@@ -82,3 +82,44 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+/* ─── Light Mode ─────────────────────────────────── */
+:root.light {
+  --background:       #F6F7FB;
+  --surface:          #FFFFFF;
+  --card:             #FFFFFF;
+  --card-foreground:  #111827;
+  --popover:          #FFFFFF;
+  --popover-foreground: #111827;
+  --sidebar:          #F8FAFC;
+  --secondary:        #EEF2F7;
+  --muted:            #E9EEF5;
+  --foreground:             #111827;
+  --muted-foreground:       #64748B;
+  --secondary-foreground:   #111827;
+  --accent-foreground:      #111827;
+  --sidebar-foreground:     #111827;
+  --primary:              #0FA66E;
+  --primary-foreground:   #FFFFFF;
+  --accent:               #6D5DF6;
+  --destructive:          #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --ring:                 #0FA66E;
+  --input:                rgba(15, 23, 42, 0.08);
+  --input-background:     #FFFFFF;
+  --switch-background:    #CBD5E1;
+  --border:               rgba(15, 23, 42, 0.12);
+  --sidebar-border:       rgba(15, 23, 42, 0.1);
+  --sidebar-primary:              #0FA66E;
+  --sidebar-primary-foreground:   #FFFFFF;
+  --sidebar-accent:               #E9EEF5;
+  --sidebar-accent-foreground:    #111827;
+  --sidebar-ring:                 #0FA66E;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+:root.light {
+  color-scheme: light;
+}
