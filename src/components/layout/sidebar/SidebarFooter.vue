@@ -2,7 +2,8 @@
   <div class="footer">
     <div class="user">
       <div class="avatar">
-        <span class="avatar-letter">{{ userInitial }}</span>
+        <img v-if="profile.avatarUrl" class="avatar-image" :src="profile.avatarUrl" alt="Foto de perfil" />
+        <span v-else class="avatar-letter">{{ userInitial }}</span>
       </div>
       
       <div class="user-details">
@@ -51,6 +52,13 @@ const { profile, userInitial, profileSubtitle, openProfilePanel } = useUserProfi
   flex-shrink: 0;
 }
 
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .avatar-letter {
   font-size: 13px;
   font-weight: 600;
@@ -59,6 +67,14 @@ const { profile, userInitial, profileSubtitle, openProfilePanel } = useUserProfi
 .user-details {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.user-name,
+.user-plan {
+  display: block;
 }
 
 .user-name {

@@ -15,7 +15,12 @@
 
         <form class="profile-form" @submit.prevent="saveProfile">
           <section class="profile-card identity-card">
-            <div class="avatar-preview">{{ userInitial }}</div>
+            <label class="avatar-upload" for="avatar-upload">
+              <img v-if="draft.avatarUrl" :src="draft.avatarUrl" alt="Foto de perfil" />
+              <span v-else>{{ userInitial }}</span>
+              <small>Cambiar foto</small>
+              <input id="avatar-upload" type="file" accept="image/*" @change="handleAvatarUpload" />
+            </label>
             <div>
               <strong>{{ profile.displayName }}</strong>
               <span>{{ profileSubtitle }}</span>
@@ -112,6 +117,7 @@ const createDraft = () => ({
   email: profile.email,
   phone: profile.phone,
   location: profile.location,
+  avatarUrl: profile.avatarUrl,
   plan: profile.plan,
   preferences: { ...profile.preferences },
 })
@@ -120,6 +126,17 @@ const draft = reactive(createDraft())
 
 const resetDraft = () => {
   Object.assign(draft, createDraft())
+}
+
+const handleAvatarUpload = (event) => {
+  const [file] = event.target.files
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    draft.avatarUrl = reader.result
+  }
+  reader.readAsDataURL(file)
 }
 
 const saveProfile = () => {
@@ -143,6 +160,10 @@ watch(isProfilePanelOpen, (isOpen) => {
 .icon-button { width: 38px; height: 38px; display: grid; place-items: center; background: var(--secondary); color: var(--foreground); }
 .profile-form { display: grid; gap: 16px; margin-top: 24px; }
 .profile-card { padding: 18px; border: 1px solid var(--border); border-radius: 20px; background: rgba(255, 255, 255, 0.035); }
+.avatar-upload { position: relative; width: 64px; height: 64px; display: grid; place-items: center; flex-shrink: 0; border-radius: 20px; overflow: hidden; background: rgba(62, 207, 142, 0.12); border: 1px solid rgba(62, 207, 142, 0.28); color: var(--primary); font-weight: 800; font-size: 22px; cursor: pointer; }
+.avatar-upload img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-upload small { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px; background: rgba(0, 0, 0, 0.62); color: var(--foreground); font-size: 10px; text-align: center; }
+.avatar-upload input { display: none; }
 .avatar-preview { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 18px; background: rgba(62, 207, 142, 0.12); border: 1px solid rgba(62, 207, 142, 0.28); color: var(--primary); font-weight: 800; font-size: 22px; }
 .fields-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 label { display: grid; gap: 8px; color: var(--foreground); font-size: 13px; }
