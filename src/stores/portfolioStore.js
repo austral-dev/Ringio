@@ -34,6 +34,43 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   )
 
   // ─── Acciones: Portfolio ──────────────────────────
+  async function calcularStats(portfolioId) {
+    const { data: transacciones } = await supabase
+      .from('Transaccion')
+      .select('*')
+      .eq('portfolio_id', portfolioId)
+
+    if (!transacciones || transacciones.length === 0) {
+      return { valorTotal: 0, cantidadActivos: 0, variacion24h: 0 }
+    }
+
+    const activoIds = [...new Set(transacciones.map(tx => tx.activo_id))]
+    const { data: activos } = await supabase
+      .from('Activo')
+      .select('*')
+      .in('id', activoIds)
+
+    if (!activos) return { valorTotal: 0, cantidadActivos: 0, variacion24h: 0 }
+
+    let valorTotal = 0
+    let cantidadActivos = 0
+
+    for (const activo of activos) {
+      const txs = transacciones.filter(tx => tx.activo_id === activo.id)
+      let cantidad = 0
+      for (const tx of txs) {
+        if (tx.tipo === 'compra') cantidad += tx.cantidad
+        else if (tx.tipo === 'venta') cantidad -= tx.cantidad
+      }
+      if (cantidad > 0) {
+        valorTotal += cantidad * activo.valor
+        cantidadActivos++
+      }
+    }
+
+    return { valorTotal, cantidadActivos, variacion24h: 0 }
+  }
+
   async function fetchPortfolios() {
     if (!currentUser.value) return
 
@@ -48,15 +85,57 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     if (error) {
       console.error('Error trayendo portfolios:', error)
       portfoliosError.value = error.message
-    } else {
-      portfolios.value = data
-      // Seleccionar el primero por defecto si no hay ninguno activo
-      if (!activePortfolioId.value && data.length > 0) {
-        activePortfolioId.value = data[0].id
-      }
+      loadingPortfolios.value = false
+      return
+    }
+
+    // Enriquecer cada portfolio con sus stats calculadas desde Transaccion + Activo
+    const conStats = await Promise.all(
+      data.map(async (p) => {
+        const stats = await calcularStats(p.id)
+        return { ...p, ...stats }
+      })
+    )
+
+    portfolios.value = conStats
+
+    // Seleccionar el primero por defecto si no hay ninguno activo
+    if (!activePortfolioId.value && conStats.length > 0) {
+      activePortfolioId.value = conStats[0].id
     }
 
     loadingPortfolios.value = false
+  }
+
+  async function addPortfolio(nombre, descripcion = '') {
+    if (!currentUser.value || !nombre.trim()) return null
+
+    const { data, error } = await supabase
+      .from('Portfolio')
+      .insert({ user_id: currentUser.value.id, nombre: nombre.trim(), descripcion })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creando portfolio:', error)
+      return null
+    }
+
+    const nuevoConStats = { ...data, valorTotal: 0, cantidadActivos: 0, variacion24h: 0 }
+    portfolios.value.push(nuevoConStats)
+    activePortfolioId.value = data.id
+    return data
+  }
+
+  async function removePortfolio(id) {
+    await supabase.from('Transaccion').delete().eq('portfolio_id', id)
+    await supabase.from('Portfolio').delete().eq('id', id)
+
+    portfolios.value = portfolios.value.filter(p => p.id !== id)
+
+    if (activePortfolioId.value === id) {
+      activePortfolioId.value = portfolios.value[0]?.id ?? null
+    }
   }
 
   function setActivePortfolio(id) {
@@ -127,6 +206,8 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     activePortfolioId,
     activePortfolio,
     fetchPortfolios,
+    addPortfolio,
+    removePortfolio,
     setActivePortfolio,
     // modal
     isTransactionModalOpen,
