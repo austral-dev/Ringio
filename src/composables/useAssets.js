@@ -77,11 +77,36 @@ const construirAsset = async (activo, txs) => {
 
     let variacion24h = 0
 
+    // Mapa de ticker → coin ID de CoinGecko (usan nombres completos, no tickers)
+    const TICKER_A_COINGECKO = {
+        BTC: 'bitcoin',
+        ETH: 'ethereum',
+        SOL: 'solana',
+        BNB: 'binancecoin',
+        XRP: 'ripple',
+        ADA: 'cardano',
+        DOGE: 'dogecoin',
+        MATIC: 'matic-network',
+        DOT: 'polkadot',
+        AVAX: 'avalanche-2',
+        LINK: 'chainlink',
+        UNI: 'uniswap',
+        LTC: 'litecoin',
+        USDT: 'tether',
+        USDC: 'usd-coin',
+    }
+
     try {
         const isCrypto = activo.tipo?.toLowerCase() === 'crypto'
 
-        const priceData = isCrypto? await fetchCryptoPrice(activo.ticker.toLowerCase()): await fetchStockPrice(activo.ticker)
-        variacion24h = priceData.change24hPct ?? 0
+        if (isCrypto) {
+            const coingeckoId = TICKER_A_COINGECKO[activo.ticker.toUpperCase()] ?? activo.ticker.toLowerCase()
+            const priceData = await fetchCryptoPrice(coingeckoId)
+            variacion24h = priceData.change24hPct ?? 0
+        } else {
+            const priceData = await fetchStockPrice(activo.ticker)
+            variacion24h = priceData.change24hPct ?? 0
+        }
     } catch (err) {
         console.error(`Error obteniendo variación ${activo.ticker}:`, err)
     }
