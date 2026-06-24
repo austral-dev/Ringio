@@ -31,7 +31,7 @@
                     </td>
                     <td>${{ formatNum(activo.precio) }}</td>
                     <td :class="activo.variacion24h >= 0 ? 'positive' : 'negative'">
-                        {{ activo.variacion24h >= 0 ? '+' : '' }}{{ activo.variacion24h }}%
+                        {{ activo.variacion24h >= 0 ? '+' : '' }}{{ activo.variacion24h.toFixed(2) }}%
                     </td>
                     <td class="col-cantidad">
                         {{ activo.cantidad }}

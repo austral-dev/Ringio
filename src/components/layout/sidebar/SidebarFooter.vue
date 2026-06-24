@@ -2,13 +2,12 @@
   <div class="footer">
     <div class="user">
       <div class="avatar">
-        <img v-if="profile.avatarUrl" class="avatar-image" :src="profile.avatarUrl" alt="Foto de perfil" />
-        <span v-else class="avatar-letter">{{ userInitial }}</span>
-      </div>
+      {{currentUser?.nombre?.charAt(0)?.toUpperCase() || "?"}}
+    </div>
       
       <div class="user-details">
-        <span class="user-name">{{ profile.displayName }}</span>
-        <span class="user-plan">{{ profileSubtitle }}</span>
+        <span class="user-name">{{ currentUser?.nombre }}</span>
+        <span class="user-plan">{{ currentUser?.plan }}</span>
       </div>
     </div>
     <button class="settings-button" type="button" aria-label="Abrir perfil" @click="openProfilePanel">
@@ -19,6 +18,7 @@
 
 <script setup>
 import { Settings } from 'lucide-vue-next'
+import { currentUser } from "@/composables/useAuth"
 import { useUserProfile } from '@/composables/useUserProfile.js'
 
 const { profile, userInitial, profileSubtitle, openProfilePanel } = useUserProfile()

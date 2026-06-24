@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase.js'
+import {fetchStockPrice, fetchCryptoPrice} from '@/services/priceService'
 
 export const assets = ref([])
 export const loadingAssets = ref(false)
@@ -65,7 +66,7 @@ const calcularPosicion = (txs) => {
     return { cantidad, ppc }
 }
 
-const construirAsset = (activo, txs) => {
+const construirAsset = async (activo, txs) => {
     const { cantidad, ppc } = calcularPosicion(txs)
 
     const precioActual = activo.valor
@@ -74,6 +75,17 @@ const construirAsset = (activo, txs) => {
     const gananciaPerdida = montoActual - montoInvertido
     const porcentaje = montoInvertido > 0? (gananciaPerdida / montoInvertido) * 100: 0
 
+    let variacion24h = 0
+
+    try {
+        const isCrypto = activo.tipo?.toLowerCase() === 'crypto'
+
+        const priceData = isCrypto? await fetchCryptoPrice(activo.ticker.toLowerCase()): await fetchStockPrice(activo.ticker)
+        variacion24h = priceData.change24hPct ?? 0
+    } catch (err) {
+        console.error(`Error obteniendo variación ${activo.ticker}:`, err)
+    }
+
     return {
         id: activo.id,
         ticker: activo.ticker,
@@ -81,7 +93,7 @@ const construirAsset = (activo, txs) => {
         tipo: activo.tipo,
         categoria: activo.categoria,
         precio: precioActual,
-        variacion24h: 0,
+        variacion24h: variacion24h,
         cantidad,
         montoActual,
         ppc,
@@ -110,9 +122,8 @@ export const fetchAssets = async (portfolioId) => {
     const activoIds = Object.keys(porActivo)
     const activos = await fetchActivos(activoIds)
 
-    const resultado = activos
-        .map((activo) => construirAsset(activo, porActivo[activo.id]))
-        .filter((a) => a.cantidad > 0)
+    const resultado = (await Promise.all(
+        activos.map((activo) => construirAsset(activo, porActivo[activo.id])))).filter((a) => a.cantidad > 0)
 
     assets.value = resultado
     loadingAssets.value = false
