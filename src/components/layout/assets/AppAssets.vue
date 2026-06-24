@@ -10,11 +10,15 @@ import { ref, computed, watch } from 'vue'
 import AssetsHeader from '@/components/layout/assets/AssetsHeader.vue'
 import AssetsTable from '@/components/layout/assets/AssetsTable.vue'
 import { assets, fetchAssets } from '@/composables/useAssets.js'
-import { selectedPortfolioId } from '@/composables/usePortfolioSelection.js'
+import { storeToRefs } from 'pinia'
+import { usePortfolioStore } from '@/stores/portfolioStore.js'
+
+const store = usePortfolioStore()
+const { activePortfolioId } = storeToRefs(store)
 
 const filtroActivo = ref('todo')
 
-watch(selectedPortfolioId, (id) => {fetchAssets(id)}, { immediate: true })
+watch(activePortfolioId, (id) => { fetchAssets(id) }, { immediate: true })
 
 const activosFiltrados = computed(() => {
     if (filtroActivo.value === 'todo') return assets.value

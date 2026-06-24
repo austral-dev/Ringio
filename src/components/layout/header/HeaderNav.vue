@@ -1,7 +1,7 @@
 <template>
   <div class="header-nav">
     <div class="header-title">
-      <h1 class="portfolio-name">{{ portfolioName }}</h1>
+      <h1 class="portfolio-name">{{ store.activePortfolio?.nombre ?? '—' }}</h1>
       <span class="portfolio-subtitle">Vista general del portafolio</span>
     </div>
     <div class="header-actions">
@@ -21,13 +21,6 @@ import { Bell, Plus } from "lucide-vue-next";
 import { usePortfolioStore } from "@/stores/portfolioStore";
 
 const store = usePortfolioStore();
-
-defineProps({
-  portfolioName: {
-    type: String,
-    default: "Tech & Growth",
-  },
-});
 </script>
 
 <style scoped>
