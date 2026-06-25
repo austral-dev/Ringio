@@ -3,77 +3,89 @@
     <Transition name="modal">
       <div v-if="store.isTransactionModalOpen" class="modal-backdrop">
         <div class="modal" ref="modalRef">
-          <!-- Header -->
-          <div class="modal-header">
-            <span class="modal-title">Seleccionar activo</span>
-            <button class="btn-close" @click="store.closeTransactionModal()">
-              <X :size="18" />
-            </button>
-          </div>
-
-          <!-- Recientes -->
-          <div v-if="recentAssets.length" class="recent-assets">
-            <button
-              v-for="asset in recentAssets"
-              :key="asset.ticker"
-              class="chip"
-              @click="store.selectAsset(asset)"
-            >
-              {{ asset.ticker }}
-            </button>
-          </div>
-
-          <!-- Búsqueda -->
-          <div class="search-wrapper">
-            <Search :size="16" class="search-icon" />
-            <input
-              ref="inputRef"
-              v-model="store.searchQuery"
-              class="search-input"
-              type="text"
-              placeholder="Buscar acción, ETF o cripto..."
-              @input="onInput"
-            />
-          </div>
-
-          <!-- Resultados -->
-          <div class="results">
-            <!-- Loading -->
-            <div v-if="store.isSearching" class="state-message">
-              <Loader2 :size="18" class="spinner" />
-              Buscando...
+          <!-- Paso: búsqueda -->
+          <template v-if="store.transactionFlow.step === 'search'">
+            <!-- Header -->
+            <div class="modal-header">
+              <span class="modal-title">Seleccionar activo</span>
+              <button class="btn-close" @click="store.closeTransactionModal()">
+                <X :size="18" />
+              </button>
             </div>
 
-            <!-- Error -->
-            <div v-else-if="store.searchError" class="state-message error">
-              {{ store.searchError }}
+            <!-- Recientes -->
+            <div v-if="recentAssets.length" class="recent-assets">
+              <button
+                v-for="asset in recentAssets"
+                :key="asset.ticker"
+                class="chip"
+                @click="store.selectAsset(asset)"
+              >
+                {{ asset.ticker }}
+              </button>
             </div>
 
-            <!-- Sin resultados -->
-            <div
-              v-else-if="store.searchQuery && !store.searchResults.length"
-              class="state-message"
-            >
-              Sin resultados para "{{ store.searchQuery }}"
+            <!-- Búsqueda -->
+            <div class="search-wrapper">
+              <Search :size="16" class="search-icon" />
+              <input
+                ref="inputRef"
+                v-model="store.searchQuery"
+                class="search-input"
+                type="text"
+                placeholder="Buscar acción, ETF o cripto..."
+                @input="onInput"
+              />
             </div>
 
-            <!-- Lista -->
-            <button
-              v-for="asset in store.searchResults"
-              :key="asset.ticker"
-              class="result-item"
-              @click="store.selectAsset(asset)"
-            >
-              <div class="result-info">
-                <span class="result-name">{{ asset.name }}</span>
-                <span class="result-ticker">{{ asset.ticker }}</span>
+            <!-- Resultados -->
+            <div class="results">
+              <div v-if="store.isSearching" class="state-message">
+                <Loader2 :size="18" class="spinner" />
+                Buscando...
               </div>
-              <div class="result-meta">
-                <span class="result-type">{{ formatType(asset.type) }}</span>
-                <ChevronRight :size="16" class="result-chevron" />
+              <div v-else-if="store.searchError" class="state-message error">
+                {{ store.searchError }}
               </div>
-            </button>
-          </div>
+              <div
+                v-else-if="store.searchQuery && !store.searchResults.length"
+                class="state-message"
+              >
+                Sin resultados para "{{ store.searchQuery }}"
+              </div>
+              <button
+                v-for="asset in store.searchResults"
+                :key="asset.ticker"
+                class="result-item"
+                @click="store.selectAsset(asset)"
+              >
+                <div class="result-info">
+                  <span class="result-name">{{ asset.name }}</span>
+                  <span class="result-ticker">{{ asset.ticker }}</span>
+                </div>
+                <div class="result-meta">
+                  <span class="result-type">{{ formatType(asset.type) }}</span>
+                  <ChevronRight :size="16" class="result-chevron" />
+                </div>
+              </button>
+            </div>
+          </template>
+
+          <!-- Paso: formulario -->
+          <template v-else-if="store.transactionFlow.step === 'form'">
+            <div class="modal-header">
+              <button
+                class="btn-back"
+                @click="store.transactionFlow.step = 'search'"
+              >
+                <ChevronLeft :size="18" />
+              </button>
+              <button class="btn-close" @click="store.closeTransactionModal()">
+                <X :size="18" />
+              </button>
+            </div>
+            <TransactionForm :asset="store.transactionFlow.selectedAsset" />
+          </template>
         </div>
       </div>
     </Transition>
@@ -82,18 +94,17 @@
 
 <script setup>
 import { ref, watch } from "vue";
-import { X, Search, ChevronRight, Loader2 } from "lucide-vue-next";
+import { X, Search, ChevronRight, ChevronLeft, Loader2 } from "lucide-vue-next";
 import { usePortfolioStore } from "@/stores/portfolioStore";
 import { useDebounceFn, onClickOutside } from "@vueuse/core";
+import TransactionForm from "@/components/transaction/TransactionForm.vue";
 
 const store = usePortfolioStore();
 const inputRef = ref(null);
 const modalRef = ref(null);
 
-// ─── Cerrar al click fuera ────────────────────────
 onClickOutside(modalRef, () => store.closeTransactionModal());
 
-// ─── Recientes (hardcodeados por ahora) ──────────
 const recentAssets = ref([
   { ticker: "SPY", name: "SPDR S&P 500 ETF", type: "ETF" },
   { ticker: "QQQ", name: "Invesco QQQ Trust", type: "ETF" },
@@ -103,7 +114,6 @@ const recentAssets = ref([
   { ticker: "NVDA", name: "NVIDIA Corporation", type: "EQUITY" },
 ]);
 
-// ─── Debounce ─────────────────────────────────────
 const debouncedSearch = useDebounceFn((val) => {
   store.search(val);
 }, 350);
@@ -112,7 +122,6 @@ function onInput(e) {
   debouncedSearch(e.target.value);
 }
 
-// ─── Foco automático al abrir ─────────────────────
 watch(
   () => store.isTransactionModalOpen,
   (isOpen) => {
@@ -122,7 +131,6 @@ watch(
   },
 );
 
-// ─── Helpers ──────────────────────────────────────
 function formatType(type) {
   const map = {
     EQUITY: "Acción",
@@ -189,6 +197,27 @@ function formatType(type) {
 }
 
 .btn-close:hover {
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.btn-back:hover {
   color: var(--foreground);
   background: var(--secondary);
 }
