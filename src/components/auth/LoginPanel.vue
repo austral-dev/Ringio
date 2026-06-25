@@ -21,37 +21,78 @@
     </section>
 
     <section class="form-side" aria-labelledby="login-title">
-      <form class="login-card" @submit.prevent="handleLogin">
+      <form class="login-card" @submit.prevent="isRegistering ? handleRegister() : handleLogin()">
         <div class="mobile-brand">
           <div class="brand-mark small"><span>R</span></div>
-          <span>Ringio</span>
+            <span>Ringio</span>
         </div>
+        <span class="eyebrow">{{ isRegistering ? 'Crear cuenta' : 'Acceso seguro' }}</span>
+        <h2 id="login-title">{{ isRegistering ? 'Registrate gratis' : 'Bienvenido de nuevo' }}</h2>
+        <p class="form-copy">{{ isRegistering ? 'Creá tu cuenta para empezar a gestionar tus inversiones.' : 'Usá tus credenciales para entrar al panel de inversiones.' }}</p>
 
-        <span class="eyebrow">Acceso seguro</span>
-        <h2 id="login-title">Bienvenido de nuevo</h2>
-        <p class="form-copy">Usá tus credenciales para entrar al panel de inversiones.</p>
-
-        <label class="field-group" for="email">
-          Email
+        <label v-if="isRegistering" class="field-group" for="register-name">
+          Nombre
           <div class="input-shell">
             <Mail :size="17" />
-            <input id="email" v-model="email" type="email" autocomplete="email" placeholder="matias@ringio.app" required />
+            <input id="register-name" v-model="registerName" type="text" placeholder="Tu nombre" required />
           </div>
         </label>
 
-        <label class="field-group" for="password">
-          Contraseña
-          <div class="input-shell">
-            <LockKeyhole :size="17" />
-            <input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="••••••••" required />
-            <button class="icon-button" type="button" :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" @click="showPassword = !showPassword">
-              <EyeOff v-if="showPassword" :size="17" />
-              <Eye v-else :size="17" />
-            </button>
-          </div>
-        </label>
+        <label class="field-group" for="email">
+    Email
+    <div class="input-shell">
+      <Mail :size="17" />
+      <input 
+        v-if="isRegistering"
+        id="email" 
+        v-model="registerEmail" 
+        type="email" 
+        autocomplete="email" 
+        placeholder="ejemplo@correo.com" 
+        required 
+      />
+      <input 
+        v-else
+        id="email" 
+        v-model="email" 
+        type="email" 
+        autocomplete="email" 
+        placeholder="ejemplo@correo.com" 
+        required 
+      />
+    </div>
+  </label>
 
-        <div class="form-options">
+<label class="field-group" style="margin-bottom: 24px;" for="password">
+  Contraseña
+  <div class="input-shell">
+    <LockKeyhole :size="17" />
+    <input 
+      v-if="isRegistering"
+      id="password" 
+      v-model="registerPassword" 
+      :type="showPassword ? 'text' : 'password'" 
+      autocomplete="current-password" 
+      placeholder="••••••••" 
+      required 
+    />
+    <input 
+      v-else
+      id="password" 
+      v-model="password" 
+      :type="showPassword ? 'text' : 'password'" 
+      autocomplete="current-password" 
+      placeholder="••••••••" 
+      required 
+    />
+    <button class="icon-button" type="button" @click="showPassword = !showPassword">
+      <EyeOff v-if="showPassword" :size="17" />
+      <Eye v-else :size="17" />
+    </button>
+  </div>
+</label>
+
+        <div v-if="!isRegistering" class="form-options">
           <label class="remember">
             <input v-model="remember" type="checkbox" />
             Recordarme
@@ -59,13 +100,18 @@
           <a href="#">Olvidé mi contraseña</a>
         </div>
 
-      <AppLoader v-if="loading" />
-      <button v-else type="submit" class="login-button">
-        Entrar al Dashboard
-        <ArrowRight :size="17" />
-      </button>
+        <AppLoader v-if="loading" />
+        <button v-else class="login-button" type="submit">
+          {{ isRegistering ? 'Crear cuenta' : 'Entrar al Dashboard' }}
+          <ArrowRight :size="17" />
+        </button>
 
-        <p class="signup-copy">¿No tenés cuenta? <a href="#">Crear cuenta gratis</a></p>
+        <p class="signup-copy">
+          {{ isRegistering ? '¿Ya tenés cuenta?' : '¿No tenés cuenta?' }}
+          <a href="#" @click.prevent="isRegistering = !isRegistering">
+            {{ isRegistering ? 'Iniciá sesión' : 'Crear cuenta gratis' }}
+          </a>
+        </p>
       </form>
     </section>
   </main>
@@ -77,6 +123,32 @@ import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-vue-next'
 import { loginAI } from '@/lib/aiAuth.js'
 import { loginWithCredentials } from '@/composables/useAuth.js'
 import AppLoader from '@/components/AppLoader.vue'
+import { registerAI } from '@/lib/aiAuth.js'
+import { supabase } from '@/lib/supabase.js'
+
+  const isRegistering = ref(false)
+  const registerName = ref('')
+  const registerEmail = ref('')
+  const registerPassword = ref('')
+
+  const handleRegister = async () => {
+    loading.value = true
+    try {
+      await registerAI(registerEmail.value, registerPassword.value)
+      await supabase.from('Usuario').insert({
+        nombre: registerName.value,
+        email: registerEmail.value,
+        password: registerPassword.value,
+        plan: 'Free'
+      })
+      await loginWithCredentials(registerEmail.value, registerPassword.value)
+      emit('login')
+    } catch (err) {
+      console.error('Error en el registro:', err)
+    } finally {
+      loading.value = false
+    }
+  }
 
 const emit = defineEmits(['login'])
 

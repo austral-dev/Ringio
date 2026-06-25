@@ -42,3 +42,13 @@ export const sendMessage = async (message) => {
     const data = await res.json()
     return data.response
 }
+
+export async function registerAI(email, password) {
+    const response = await fetch('https://trabajo-integrador-tp2.onrender.com/api/v1/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    })
+    if (!response.ok) throw new Error('Error en el registro')
+        return response.json()
+}
