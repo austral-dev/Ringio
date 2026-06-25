@@ -21,7 +21,7 @@
               <small>Cambiar foto</small>
               <input id="avatar-upload" type="file" accept="image/*" @change="handleAvatarUpload" />
             </label>
-            <div>
+            <div class="identity-details">
               <strong>{{ profile.displayName }}</strong>
               <span>{{ profileSubtitle }}</span>
             </div>
@@ -47,14 +47,6 @@
           </section>
 
           <section class="profile-card fields-grid">
-            <label>
-              Plan
-              <select v-model="draft.plan">
-                <option>Free</option>
-                <option>Pro</option>
-                <option>Premium</option>
-              </select>
-            </label>
             <label>
               Perfil inversor
               <select v-model="draft.preferences.riskProfile">
@@ -167,9 +159,14 @@ watch(isProfilePanelOpen, (isOpen) => {
 .avatar-upload small { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px; background: rgba(0, 0, 0, 0.62); color: var(--foreground); font-size: 10px; text-align: center; }
 .avatar-upload input { display: none; }
 .avatar-preview { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 18px; background: rgba(62, 207, 142, 0.12); border: 1px solid rgba(62, 207, 142, 0.28); color: var(--primary); font-weight: 800; font-size: 22px; }
+.identity-details { display: grid; gap: 5px; min-width: 0; }
+.identity-details strong, .identity-details span { display: block; }
 .fields-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 label { display: grid; gap: 8px; color: var(--foreground); font-size: 13px; }
 input, select { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--input-background); color: var(--foreground); padding: 11px 12px; }
+select { color-scheme: dark; }
+option { background: var(--card); color: var(--foreground); }
+:global(:root.light) select { color-scheme: light; }
 .options-card h3 { margin: 0 0 12px; }
 .toggle-row { padding: 12px 0; border-top: 1px solid var(--border); }
 .toggle-row span { display: grid; gap: 3px; }

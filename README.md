@@ -1,4 +1,3 @@
-````markdown
 # Ringio 📈
 
 Ringio es una aplicación web para gestionar y visualizar portafolios de inversión en un solo lugar.
@@ -86,7 +85,7 @@ const data = await fetchCryptoPrice("bitcoin");
 const results = await searchAsset("apple");
 // → [{ ticker, name, type, exchange }]
 ```
-````
+
 
 ### `portfolioStore.js`
 
