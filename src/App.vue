@@ -1,17 +1,24 @@
 <template>
-  <LoginPanel v-if="!isAuthenticated" @login="isAuthenticated = true" />
+  <LoginPanel v-if="!isAuthenticated" @login="handleLogin" />
 
-  <div v-else class="app-layout">
-    <AppSidebar />
-    <div class="main-header">
-      <AppHeader />
-      <main class="main-content">
-        <MyPortfoliosPanel />
-        <AppCharts />
-        <AppAssets />
-      </main>
+  <template v-else>
+    <div v-if="pageLoading" class="dashboard-loading-overlay">
+      <AppLoader />
     </div>
-  </div>
+
+    <div class="app-layout">
+      <AppSidebar />
+      <div class="main-header">
+        <AppHeader />
+        <main class="main-content">
+          <MyPortfoliosPanel />
+          <AppCharts />
+          <AppAssets />
+        </main>
+      </div>
+    </div>
+  </template>
+
   <AssetSearchModal />
   <UserProfilePanel />
 </template>
@@ -26,11 +33,36 @@ import AppCharts from '@/components/layout/charts/AppCharts.vue'
 import AppAssets from '@/components/layout/assets/AppAssets.vue'
 import AssetSearchModal from '@/components/transaction/AssetSearchModal.vue'
 import UserProfilePanel from '@/components/profile/UserProfilePanel.vue'
+import AppLoader from '@/components/AppLoader.vue'
 
 const isAuthenticated = ref(false)
+const pageLoading = ref(true)
+
+const handleLogin = async () => {
+  isAuthenticated.value = true
+  pageLoading.value = true
+  
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 2500))
+  } catch (err) {
+    console.error('Error al procesar la entrada al dashboard:', err)
+  } finally {
+    pageLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
+.dashboard-loading-overlay {
+  position: fixed; 
+  inset: 0;
+  background-color: #0b0f19; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999; 
+}
+
 .app-layout {
   display: flex;
   min-height: 100vh;
