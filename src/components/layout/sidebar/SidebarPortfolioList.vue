@@ -30,10 +30,9 @@
           </span>
           <span
             class="portfolio-change"
-            :class="portfolio.variacion24h >= 0 ? 'positive' : 'negative'"
+            :class="portfolio.rendimiento >= 0 ? 'positive' : 'negative'"
           >
-            {{ (portfolio.variacion24h ?? 0) >= 0 ? "+" : ""
-            }}{{ (portfolio.variacion24h ?? 0).toFixed(2) }}%
+            {{ (portfolio.rendimiento ?? 0) >= 0 ? '+' : '' }}{{ (portfolio.rendimiento ?? 0).toFixed(2) }}%
           </span>
         </button>
 

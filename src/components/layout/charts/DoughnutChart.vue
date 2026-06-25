@@ -6,10 +6,10 @@
         </div>
         <Doughnut class="dn-chart" :data="chartData" :options="chartOptions"/>
         <div class="chartData-list">
-            <div v-for="item in sortedItems" :key="item.label" class="chartData-item">
+            <div v-for="item in sortedItems" :key="item.label" class="chartData-item" @click="toggleItem(item.label)" style="cursor: pointer">
                 <div class="item-name">
                     <span class="item-dot" :style="{backgroundColor: item.color}" />
-                    <span>{{ item.label }}</span>
+                    <span :style="{ textDecoration: hiddenItems.has(item.label) ? 'line-through' : 'none', opacity: hiddenItems.has(item.label) ? 0.4 : 1 }">{{ item.label }}</span>
                 </div>
                 <div class="item-value">
                     <span>{{ item.percentage }}%</span>
@@ -20,38 +20,50 @@
 </template>
 
 <script setup>
-import { Doughnut } from 'vue-chartjs';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { assets } from '@/composables/useAssets.js'
+import { ref, computed, defineComponent } from 'vue';
+import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'vue-chartjs'
 
-import { ref, computed } from 'vue';
+const components = { Doughnut }
+Chart.register(ArcElement, Tooltip, Legend);
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const COLORES = ['#fe6b5b', '#9a7afe', '#3ece8d', '#60a4f9', '#f49d0b', '#1a1a29']
 
-const chartData = ref({
-    labels: ['A', 'B', 'C', 'D', 'E', 'F'],
-    datasets: [
-        {
+
+const hiddenItems = ref(new Set())
+
+function toggleItem(label) {
+    if (hiddenItems.value.has(label)) {
+        hiddenItems.value.delete(label)
+    } else {
+        hiddenItems.value.add(label)
+    }
+    hiddenItems.value = new Set(hiddenItems.value)
+}
+
+const chartData = computed(() => {
+    const total = assets.value.reduce((sum, a) => sum + a.montoActual, 0)
+    const sorted = [...assets.value]
+        .filter(a => !hiddenItems.value.has(a.ticker))
+        .sort((a, b) => b.montoActual - a.montoActual)
+    
+    return {
+        labels: sorted.map(a => a.ticker),
+        datasets: [{
             label: 'Distribución de activos',
-            data: [65, 15, 20, 1, 3, 10],
-            backgroundColor: [
-                '#fe6b5b',
-                '#9a7afe',
-                '#3ece8d',
-                '#60a4f9',
-                '#f49d0b',
-                '#1a1a29'
-                
-            ]
-        }
-    ]
-});
+            data: sorted.map(a => parseFloat(((a.montoActual / total) * 100).toFixed(1))),
+            backgroundColor: sorted.map((_, i) => COLORES[i % COLORES.length])
+        }]
+    }
+})
 
 const chartOptions = ref({
     responsive: true,
     plugins: {
-      legend: {
+        legend: {
         display: false
-      },
+        },
     },
 });
 
@@ -59,17 +71,23 @@ const sortedItems = computed(() => {
     const labels = chartData.value.labels;
     const values = chartData.value.datasets[0].data;
     const colors = chartData.value.datasets[0].backgroundColor;
-
     const total = values.reduce((acc, value) => acc + value, 0);
     
-    const sortedItems = labels.map((label, i) => ({
+    const visible = labels.map((label, i) => ({
         label,
         value: values[i],
-        percentage: ((values[i] / total) * 100).toFixed(1),
+        percentage: values[i].toFixed(1),
         color: colors[i]
-    })).sort((a, b) => b.value - a.value);
+    }))
 
-    return sortedItems;
+    const hidden = [...hiddenItems.value].map(label => ({
+        label,
+        value: 0,
+        percentage: '0.0',
+        color: '#555'
+    }))
+
+    return [...visible, ...hidden]
 });
 </script>
 

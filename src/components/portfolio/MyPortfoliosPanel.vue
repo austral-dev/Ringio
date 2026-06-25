@@ -29,9 +29,6 @@
           <span class="portfolio-icon" :style="{ '--portfolio-color': portfolio.color }">
             <component :is="portfolio.icon" :size="20" />
           </span>
-          <button class="icon-action" type="button" aria-label="Abrir opciones del portafolio">
-            <MoreHorizontal :size="18" />
-          </button>
         </div>
 
         <div class="portfolio-card-body">
@@ -46,7 +43,7 @@
           <span class="change-pill" :class="portfolio.change >= 0 ? 'positive' : 'negative'">
             <TrendingUp v-if="portfolio.change >= 0" :size="14" />
             <TrendingDown v-else :size="14" />
-            {{ portfolio.change >= 0 ? '+' : '' }}{{ portfolio.change }}% hoy
+            {{ portfolio.change >= 0 ? '+' : '' }}{{ (portfolio.change).toFixed(2) }}% hoy
           </span>
           <span class="holdings">{{ portfolio.holdings }} activos</span>
         </div>
@@ -95,7 +92,7 @@ const portfoliosMapeados = computed(() =>
     color: p.color ?? ['#3ECF8E', '#9B7AFF', '#FF5B5B', '#60A5FA', '#F59E0B'][i % 5],
     icon: iconosPorDefecto[i % iconosPorDefecto.length],
     featured: i === 0,
-    allocation: [], // sin datos de asignación por ahora
+    allocation: p.allocation ?? [],
   }))
 )
 
@@ -109,7 +106,7 @@ const metrics = computed(() => {
   return [
     { label: 'Valor total', value: formatCurrency(totalValue), detail: 'en todos los portafolios', tone: 'muted' },
     { label: 'Portafolios', value: ps.length.toString(), detail: 'estrategias activas', tone: 'muted' },
-    { label: 'Mejor rendimiento', value: bestPortfolio.name, detail: bestPortfolio.change !== 0 ? `${bestPortfolio.change > 0 ? '+' : ''}${bestPortfolio.change.toFixed(2)}% hoy` : 'Sin variación', tone: bestPortfolio.change >= 0 ? 'positive' : '' },
+    { label: 'Mejor rendimiento', value: bestPortfolio.name, detail: bestPortfolio.change !== 0 ? `${bestPortfolio.change > 0 ? '+' : ''}${bestPortfolio.change.toFixed(2)}% hoy` : 'Sin variación', tone: bestPortfolio.change > 0 ? 'positive' : bestPortfolio.change < 0 ? 'negative' : 'muted' },
   ]
 })
 
@@ -379,4 +376,6 @@ function formatCurrency(value) {
     justify-content: center;
   }
 }
+
+.negative { color: var(--destructive) !important; }
 </style>
