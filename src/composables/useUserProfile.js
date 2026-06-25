@@ -1,5 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { currentUser } from '@/composables/useAuth.js'
+import { supabase } from '@/lib/supabase.js'
 
 const defaultPreferences = {
   currency: 'USD',
@@ -54,9 +55,29 @@ const hydrateProfile = (nextProfile) => {
 
 watch(
   currentUser,
-  (user) => {
+  async (user) => {
     if (!user) return
-    hydrateProfile(normalizeUserProfile(user))
+    
+    const baseProfile = normalizeUserProfile(user)
+    hydrateProfile(baseProfile)
+
+    try {
+      const { data: config } = await supabase
+        .from('Config')
+        .select('perfil_inversor, moneda, alertas, resumen, avatar_url')
+        .eq('user_id', user.id)
+        .single()
+
+      if (config) {
+        profile.avatarUrl = config.avatar_url || ''
+        profile.preferences.riskProfile = config.perfil_inversor || defaultPreferences.riskProfile
+        profile.preferences.currency = config.moneda || defaultPreferences.currency
+        profile.preferences.notifications = config.alertas ?? defaultPreferences.notifications
+        profile.preferences.weeklySummary = config.resumen ?? defaultPreferences.weeklySummary
+      }
+    } catch (err) {
+      console.error('Error al complementar los datos de configuración:', err)
+    }
   },
   { immediate: true }
 )
