@@ -33,71 +33,71 @@
         <label v-if="isRegistering" class="field-group" for="register-name">
           Nombre
           <div class="input-shell">
-            <Mail :size="17" />
+            <User :size="17" />
             <input id="register-name" v-model="registerName" type="text" placeholder="Tu nombre" required />
           </div>
         </label>
 
         <label class="field-group" for="email">
-    Email
-    <div class="input-shell">
-      <Mail :size="17" />
-      <input 
-        v-if="isRegistering"
-        id="email" 
-        v-model="registerEmail" 
-        type="email" 
-        autocomplete="email" 
-        placeholder="ejemplo@correo.com" 
-        required 
-      />
-      <input 
-        v-else
-        id="email" 
-        v-model="email" 
-        type="email" 
-        autocomplete="email" 
-        placeholder="ejemplo@correo.com" 
-        required 
-      />
-    </div>
-  </label>
+          Email
+          <div class="input-shell">
+            <Mail :size="17" />
+            <input 
+              v-if="isRegistering"
+              id="email" 
+              v-model="registerEmail" 
+              type="email" 
+              autocomplete="email" 
+              placeholder="ejemplo@correo.com" 
+              required 
+            />
+            <input 
+              v-else
+              id="email" 
+              v-model="email" 
+              type="email" 
+              autocomplete="email" 
+              placeholder="ejemplo@correo.com" 
+              required 
+            />
+          </div>
+        </label>
 
-<label class="field-group" style="margin-bottom: 24px;" for="password">
-  Contraseña
-  <div class="input-shell">
-    <LockKeyhole :size="17" />
-    <input 
-      v-if="isRegistering"
-      id="password" 
-      v-model="registerPassword" 
-      :type="showPassword ? 'text' : 'password'" 
-      autocomplete="current-password" 
-      placeholder="••••••••" 
-      required 
-    />
-    <input 
-      v-else
-      id="password" 
-      v-model="password" 
-      :type="showPassword ? 'text' : 'password'" 
-      autocomplete="current-password" 
-      placeholder="••••••••" 
-      required 
-    />
-    <button class="icon-button" type="button" @click="showPassword = !showPassword">
-      <EyeOff v-if="showPassword" :size="17" />
-      <Eye v-else :size="17" />
-    </button>
-  </div>
-</label>
+        <label class="field-group" style="margin-bottom: 24px;" for="password">
+          Contraseña
+          <div class="input-shell">
+            <LockKeyhole :size="17" />
+            <input 
+              v-if="isRegistering"
+              id="password" 
+              v-model="registerPassword" 
+              :type="showPassword ? 'text' : 'password'" 
+              autocomplete="current-password" 
+              placeholder="••••••••" 
+              required 
+            />
+            <input 
+              v-else
+              id="password" 
+              v-model="password" 
+              :type="showPassword ? 'text' : 'password'" 
+              autocomplete="current-password" 
+              placeholder="••••••••" 
+              required 
+            />
+            <button class="icon-button" type="button" @click="showPassword = !showPassword">
+              <EyeOff v-if="showPassword" :size="17" />
+              <Eye v-else :size="17" />
+            </button>
+          </div>
+        </label>
 
         <div v-if="!isRegistering" class="form-options">
           <label class="remember">
             <input v-model="remember" type="checkbox" />
             Recordarme
           </label>
-          <a href="#">Olvidé mi contraseña</a>
+          <a href="#" @click.prevent="$el.querySelector('#forgot-password-modal').showModal()">Olvidé mi contraseña</a>
         </div>
 
         <AppLoader v-if="loading" />
@@ -113,13 +113,25 @@
           </a>
         </p>
       </form>
+      <dialog id="forgot-password-modal" class="custom-alert">
+        <div class="alert-content">
+          <div class="brand-mark small"><span>R</span></div>
+            <h3>¿Te olvidaste la clave?</h3>
+            <p class="form-copy">
+              Lamentamos que olvidaras tu contraseña. <br /> ¡Para poder ingresar te sugerimos que te la acuerdes! 
+            </p>
+            <button type="button" class="login-button close-alert-btn" @click="$el.querySelector('#forgot-password-modal').close()">
+              Entendido, haré memoria
+            </button>
+          </div>
+      </dialog>
     </section>
   </main>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-vue-next'
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, User } from 'lucide-vue-next'
 import { loginAI } from '@/lib/aiAuth.js'
 import { loginWithCredentials } from '@/composables/useAuth.js'
 import AppLoader from '@/components/AppLoader.vue'
@@ -474,5 +486,48 @@ const handleLogin = async () => {
     align-items: flex-start;
     flex-direction: column;
   }
+}
+
+/*-------------------------------------------------------------------------------------*/ 
+/*---- Estilos para el Alert Personalizado --------------------------------------------*/
+.custom-alert {
+  background: #11131e; /* El fondo oscuro de tu app */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  color: #ffffff;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.custom-alert::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px); /* Efecto de desenfoque al fondo */
+}
+
+.alert-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.alert-content h3 {
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.close-alert-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 12px;
+  cursor: pointer;
 }
 </style>
