@@ -125,7 +125,3 @@ VITE_SUPABASE_ANON_KEY=tu_anon_key
 npm install
 npm run dev
 ```
-
-```
-
-```
