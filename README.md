@@ -1,4 +1,4 @@
-```markdown
+````markdown
 # Ringio 📈
 
 Ringio es una aplicación web para gestionar y visualizar portafolios de inversión en un solo lugar. Permite registrar transacciones de compra, venta y rendimientos sobre acciones, ETFs y criptomonedas, con precios actualizados en tiempo real.
@@ -41,29 +41,17 @@ A inversores individuales con conocimiento intermedio de los mercados financiero
 ---
 
 ## Estructura del proyecto
-```
 
-src/
-├── assets/
-├── components/
-│ ├── auth/
-│ ├── layout/
-│ │ ├── assets/
-│ │ ├── charts/
-│ │ ├── header/
-│ │ └── sidebar/
-│ ├── transaction/
-│ │ ├── AssetSearchModal.vue
-│ │ └── TransactionForm.vue
-│ └── portfolio/
-├── composables/
-├── lib/
-├── services/
-│ └── priceService.js
-└── stores/
-└── portfolioStore.js
-
-````
+- `src/assets/`
+- `src/components/`
+  - `auth/`
+  - `layout/` — header, sidebar, charts, assets
+  - `transaction/` — AssetSearchModal.vue, TransactionForm.vue
+  - `portfolio/`
+- `src/composables/`
+- `src/lib/`
+- `src/services/` — priceService.js
+- `src/stores/` — portfolioStore.js
 
 ---
 
@@ -74,19 +62,24 @@ src/
 Funciones disponibles para usar en cualquier componente:
 
 ```js
-import { fetchStockPrice, fetchCryptoPrice, searchAsset } from '@/services/priceService'
+import {
+  fetchStockPrice,
+  fetchCryptoPrice,
+  searchAsset,
+} from "@/services/priceService";
 
 // Precio de una acción o ETF
-const data = await fetchStockPrice('AAPL')
+const data = await fetchStockPrice("AAPL");
 // → { ticker, name, price, currency, change24h, change24hPct }
 
 // Precio de una cripto
-const data = await fetchCryptoPrice('bitcoin')
+const data = await fetchCryptoPrice("bitcoin");
 // → { ticker, name, price, currency, change24h, change24hPct }
 
 // Búsqueda de activos
-const results = await searchAsset('apple')
+const results = await searchAsset("apple");
 // → [{ ticker, name, type, exchange }]
+```
 ````
 
 ### `portfolioStore.js`
