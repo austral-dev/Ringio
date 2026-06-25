@@ -2,8 +2,9 @@
   <div class="footer">
     <div class="user">
       <div class="avatar">
-      {{currentUser?.nombre?.charAt(0)?.toUpperCase() || "?"}}
-    </div>
+        <img v-if="profile.avatarUrl" :src="profile.avatarUrl" alt="Foto de perfil" class="avatar-image" />
+        <span v-else class="avatar-letter">{{ userInitial }}</span>
+      </div>
       
       <div class="user-details">
         <span class="user-name">{{ currentUser?.nombre }}</span>

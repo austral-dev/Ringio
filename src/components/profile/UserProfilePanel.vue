@@ -99,19 +99,26 @@
 
 <script setup>
 import { reactive, watch } from 'vue'
-import { Save, X } from 'lucide-vue-next'
+import { Save, X, User } from 'lucide-vue-next'
 import { useUserProfile } from '@/composables/useUserProfile.js'
+import { supabase } from '@/lib/supabase.js'
+import { currentUser } from '@/composables/useAuth.js'
 
 const { profile, userInitial, profileSubtitle, isProfilePanelOpen, closeProfilePanel, updateProfile, setAvatarFileToUpload } = useUserProfile()
 
 const createDraft = () => ({
-  displayName: profile.displayName,
-  email: profile.email,
-  phone: profile.phone,
-  location: profile.location,
-  avatarUrl: profile.avatarUrl,
-  plan: profile.plan,
-  preferences: { ...profile.preferences },
+  displayName: profile.displayName || '',
+  email: profile.email || '',
+  phone: profile.phone || '',
+  location: profile.location || '',
+  avatarUrl: profile.avatarUrl || '',
+  plan: profile.plan || 'Free',
+  preferences: {
+    riskProfile: profile.preferences?.riskProfile || 'Moderado',
+    currency: profile.preferences?.currency || 'USD',
+    notifications: profile.preferences?.notifications ?? true,
+    weeklySummary: profile.preferences?.weeklySummary ?? true
+  }
 })
 
 const draft = reactive(createDraft())
@@ -133,13 +140,80 @@ const handleAvatarUpload = (event) => {
   reader.readAsDataURL(file)
 }
 
-const saveProfile = () => {
-  updateProfile(draft)
-  closeProfilePanel()
+const uploadAvatarBucket = async (userId, file) => {
+  const fileExt = file.name.split('.').pop()
+  const fileName = `users/${userId}/avatar-${Date.now()}.${fileExt}`
+  
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(fileName, file, { upsert: true })
+
+  if (uploadError) throw uploadError
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(fileName)
+
+  return publicUrl
+}
+
+const updateUserData = async (userId, draftData) => {
+  const { error } = await supabase
+    .from('Usuario')
+    .update({
+      nombre: draftData.displayName,
+      email: draftData.email,
+      telefono: draftData.phone,
+      ubicacion: draftData.location
+    })
+    .eq('id', userId)
+
+  if (error) throw error
+}
+
+const saveUserConfig = async (userId, draftData) => {
+  const { error } = await supabase
+    .from('Config')
+    .upsert({
+      user_id: userId,
+      perfil_inversor: draftData.preferences.riskProfile,
+      moneda: draftData.preferences.currency,
+      alertas: draftData.preferences.notifications,
+      resumen: draftData.preferences.weeklySummary,
+      avatar_url: draftData.avatarUrl,
+      tema: true // Hardcodeado -- A arreglar en el próximo commit
+    })
+
+  if (error) throw error
+}
+
+const saveProfile = async () => {
+  try {
+    const userId = currentUser.value?.id
+    if (!userId) {
+      console.error('No se encontró un usuario autenticado.')
+      return
+    }
+
+    const fileInput = document.querySelector('input[type="file"]')
+    const fileObject = fileInput?.files?.[0]
+    if (fileObject) {
+      draft.avatarUrl = await uploadAvatarBucket(userId, fileObject)
+    }
+    await updateUserData(userId, draft)
+    await saveUserConfig(userId, draft)
+    
+    updateProfile(draft)
+    closeProfilePanel()
+  } catch (err) {
+    console.error('Error al guardar las configuraciones en la BD:', err)
+  }
 }
 
 watch(isProfilePanelOpen, (isOpen) => {
-  if (isOpen) resetDraft()
+  if (isOpen) {
+    resetDraft()
+  }
 })
 </script>
 
