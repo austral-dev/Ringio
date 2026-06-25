@@ -92,7 +92,7 @@ const portfoliosMapeados = computed(() =>
     color: p.color ?? ['#3ECF8E', '#9B7AFF', '#FF5B5B', '#60A5FA', '#F59E0B'][i % 5],
     icon: iconosPorDefecto[i % iconosPorDefecto.length],
     featured: i === 0,
-    allocation: [], // sin datos de asignación por ahora
+    allocation: p.allocation ?? [],
   }))
 )
 

@@ -76,6 +76,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     let cantidadActivos = 0
     let montoInvertido = 0
     let sumaPonderada = 0
+    const activosConMonto = []
 
     for (const activo of activos) {
       const txs = transacciones.filter(tx => tx.activo_id === activo.id)
@@ -93,13 +94,22 @@ export const usePortfolioStore = defineStore('portfolio', () => {
         valorTotal += montoActivo
         cantidadActivos++
         sumaPonderada += montoActivo * (cambiosPorId[activo.id] ?? 0)
+        activosConMonto.push({ id: activo.id, ticker: activo.ticker, monto: montoActivo })
       }
     }
 
     const rendimiento = montoInvertido > 0 ? ((valorTotal - montoInvertido) / montoInvertido) * 100 : 0
     const variacion24h = valorTotal > 0 ? sumaPonderada / valorTotal : 0
+    const COLORES = ['#fe6b5b', '#9a7afe', '#3ece8d', '#60a4f9', '#f49d0b', '#8b84c6']
+    const allocation = activosConMonto
+        .sort((a, b) => b.monto - a.monto)
+        .map((a, i) => ({
+            label: a.ticker,
+            value: parseFloat(((a.monto / valorTotal) * 100).toFixed(1)),
+            color: COLORES[i % COLORES.length]
+        }))
 
-    return { valorTotal, montoInvertido, cantidadActivos, variacion24h, rendimiento }
+    return { valorTotal, montoInvertido, cantidadActivos, variacion24h, rendimiento, allocation }
   }
 
   async function fetchPortfolios() {
