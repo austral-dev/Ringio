@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase.js'
-import {fetchStockPrice, fetchCryptoPrice} from '@/services/priceService'
+import { fetchStockPrice, fetchCryptoPrices } from '@/services/priceService'
 
 export const assets = ref([])
 export const loadingAssets = ref(false)
@@ -57,7 +57,10 @@ const calcularPosicion = (txs) => {
             totalCompradoMonto += tx.cantidad * tx.precio
             totalCompradoCantidad += tx.cantidad
         } else if (tx.tipo === 'venta') {
-        cantidad -= tx.cantidad
+            cantidad -= tx.cantidad
+        } else if (tx.tipo === 'rendimiento') {
+            // Suma al total de unidades pero no altera el precio promedio de compra
+            cantidad += tx.cantidad
         }
     }
 
@@ -66,7 +69,7 @@ const calcularPosicion = (txs) => {
     return { cantidad, ppc }
 }
 
-const construirAsset = async (activo, txs) => {
+const construirAsset = (activo, txs, variacion24h = 0) => {
     const { cantidad, ppc } = calcularPosicion(txs)
 
     const precioActual = activo.valor
@@ -75,42 +78,6 @@ const construirAsset = async (activo, txs) => {
     const gananciaPerdida = montoActual - montoInvertido
     const porcentaje = montoInvertido > 0? (gananciaPerdida / montoInvertido) * 100: 0
 
-    let variacion24h = 0
-
-    // Mapa de ticker → coin ID de CoinGecko (usan nombres completos, no tickers)
-    const TICKER_A_COINGECKO = {
-        BTC: 'bitcoin',
-        ETH: 'ethereum',
-        SOL: 'solana',
-        BNB: 'binancecoin',
-        XRP: 'ripple',
-        ADA: 'cardano',
-        DOGE: 'dogecoin',
-        MATIC: 'matic-network',
-        DOT: 'polkadot',
-        AVAX: 'avalanche-2',
-        LINK: 'chainlink',
-        UNI: 'uniswap',
-        LTC: 'litecoin',
-        USDT: 'tether',
-        USDC: 'usd-coin',
-    }
-
-    try {
-        const isCrypto = activo.tipo?.toLowerCase() === 'crypto'
-
-        if (isCrypto) {
-            const coingeckoId = TICKER_A_COINGECKO[activo.ticker.toUpperCase()] ?? activo.ticker.toLowerCase()
-            const priceData = await fetchCryptoPrice(coingeckoId)
-            variacion24h = priceData.change24hPct ?? 0
-        } else {
-            const priceData = await fetchStockPrice(activo.ticker)
-            variacion24h = priceData.change24hPct ?? 0
-        }
-    } catch (err) {
-        console.error(`Error obteniendo variación ${activo.ticker}:`, err)
-    }
-
     return {
         id: activo.id,
         ticker: activo.ticker,
@@ -118,7 +85,7 @@ const construirAsset = async (activo, txs) => {
         tipo: activo.tipo,
         categoria: activo.categoria,
         precio: precioActual,
-        variacion24h: variacion24h,
+        variacion24h,
         cantidad,
         montoActual,
         ppc,
@@ -147,8 +114,34 @@ export const fetchAssets = async (portfolioId) => {
     const activoIds = Object.keys(porActivo)
     const activos = await fetchActivos(activoIds)
 
-    const resultado = (await Promise.all(
-        activos.map((activo) => construirAsset(activo, porActivo[activo.id])))).filter((a) => a.cantidad > 0)
+    // ─── Separar cryptos de acciones ──────────────
+    const cryptoActivos = activos.filter(a => a.tipo?.toLowerCase() === 'crypto')
+    const stockActivos  = activos.filter(a => a.tipo?.toLowerCase() !== 'crypto')
+
+    // ─── Una sola request para todas las cryptos ──
+    const cryptoPrices = await fetchCryptoPrices(cryptoActivos.map(a => a.ticker))
+      .catch(() => ({}))
+
+    // ─── Acciones en paralelo (una request por acción, pero simultáneas) ──
+    const stockPricesArr = await Promise.all(
+        stockActivos.map(a =>
+            fetchStockPrice(a.ticker)
+                .then(d => ({ ticker: a.ticker, change24hPct: d.change24hPct ?? 0 }))
+                .catch(() => ({ ticker: a.ticker, change24hPct: 0 }))
+        )
+    )
+    const stockPrices = Object.fromEntries(stockPricesArr.map(s => [s.ticker, s.change24hPct]))
+
+    // ─── Construir activos con precios ya cargados ─
+    const resultado = activos
+        .map(activo => {
+            const isCrypto = activo.tipo?.toLowerCase() === 'crypto'
+            const variacion24h = isCrypto
+                ? (cryptoPrices[activo.ticker.toUpperCase()]?.change24hPct ?? 0)
+                : (stockPrices[activo.ticker] ?? 0)
+            return construirAsset(activo, porActivo[activo.id], variacion24h)
+        })
+        .filter(a => a.cantidad > 0)
 
     assets.value = resultado
     loadingAssets.value = false

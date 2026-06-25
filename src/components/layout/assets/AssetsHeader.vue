@@ -7,7 +7,7 @@
             <button v-for="filtro in filtros":key="filtro.value" class="filter-btn":class="{ active: filtroActivo === filtro.value }" @click="$emit('cambiar-filtro', filtro.value)">
                 {{ filtro.label }}
             </button>
-            <button class="btn-agregar">
+            <button class="btn-agregar" @click="store.openTransactionModal()">
                 <Plus :size="14" />
                 Agregar
             </button>
@@ -17,6 +17,9 @@
 
 <script setup>
 import { Plus } from 'lucide-vue-next'
+import { usePortfolioStore } from '@/stores/portfolioStore'
+
+const store = usePortfolioStore()
 
 defineProps({
     filtroActivo: {
