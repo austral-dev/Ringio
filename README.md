@@ -2,17 +2,20 @@
 # Ringio 📈
 
 Ringio es una aplicación web para gestionar y visualizar portafolios de inversión en un solo lugar.
-Permite registrar transacciones de compra, venta y rendimientos sobre acciones, ETFs y criptomonedas, con precios actualizados en tiempo real.
+Permite registrar transacciones de compra, venta y rendimientos sobre acciones, ETFs y criptomonedas,
+con precios actualizados en tiempo real.
 
 ## ¿Qué problema resuelve?
 
-Un inversor con posiciones en distintos tipos de activos necesita consultar múltiples plataformas para tener una foto completa de su patrimonio.
-Ringio centraliza esa información, permitiendo registrar operaciones históricas y ver en tiempo real cómo evoluciona el valor de cada portafolio.
+Un inversor con posiciones en distintos tipos de activos necesita consultar múltiples plataformas para
+tener una foto completa de su patrimonio.
+Ringio centraliza esa información, permitiendo registrar operaciones históricas y ver en tiempo real
+cómo evoluciona el valor de cada portafolio.
 
 ## ¿A quiénes está dirigido?
 
-A inversores individuales con conocimiento intermedio de los mercados financieros, que ya operan en brokers o exchanges y quieren una herramienta
-propia para hacer seguimiento de sus inversiones.
+A inversores individuales con conocimiento intermedio de los mercados financieros, que ya operan en brokers
+o exchanges y quieren una herramienta propia para hacer seguimiento de sus inversiones.
 
 ---
 
